@@ -156,13 +156,13 @@
   </xs:element>
   <xs:element name="target">
     <xs:complexType>
-      <xs:attribute name="kinType" use="required">
+      <xs:attribute name="primitiveRel" use="required">
         <xs:simpleType>
           <xs:restriction base="xs:token">
-            <xs:enumeration value="parent"/>
-            <xs:enumeration value="child"/>
-            <xs:enumeration value="ancestor"/>
-            <xs:enumeration value="descendant"/>
+            <xs:enumeration value="tree:parent"/>
+            <xs:enumeration value="tree:child"/>
+            <xs:enumeration value="tree:ancestor"/>
+            <xs:enumeration value="tree:descendant"/>
           </xs:restriction>
         </xs:simpleType>
       </xs:attribute>
