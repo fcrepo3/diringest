@@ -35,9 +35,9 @@
 
   <objectTemplate nodeType="*">
     <description>
-      Specifies a "hastree:ancestor" relationship from any node to all tree:ancestors.
+      Specifies a "tree:ancestor" relationship from any node to all ancestors.
     </description>
-    <relationship name="sample:hastree:ancestor">
+    <relationship name="tree:ancestor">
       <target primitiveRel="tree:ancestor" nodeType="*"/>
     </relationship>
   </objectTemplate>

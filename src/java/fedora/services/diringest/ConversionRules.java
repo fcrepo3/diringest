@@ -37,6 +37,7 @@ public class ConversionRules extends DefaultHandler {
     public ConversionRules(InputStream xml) throws Exception {
         m_namespaces = new HashMap();
         m_namespaces.put("rdf", Constants.RDF.uri);
+        m_namespaces.put("tree", "info:fedora/fedora-system:def/tree#");
         m_oTemplates = new HashMap();
         m_dTemplates = new HashMap();
         SAXParserFactory spf = SAXParserFactory.newInstance();
@@ -158,22 +159,22 @@ public class ConversionRules extends DefaultHandler {
             m_targetSpecs = new ArrayList();
         }
         if (localName.equals("target")) {
-            String ktString = a.getValue("", "kinType");
+            String ktString = a.getValue("", "primitiveRel");
             if (ktString == null) {
-                throw new SAXException("'target' requires a 'kinType' attribute.");
+                throw new SAXException("'target' requires a 'primitiveRel' attribute.");
             }
             String kt = ktString.toLowerCase();
             int kinType;
-            if (kt.equals("parent")) {
+            if (kt.equals("tree:parent")) {
                 kinType = TargetSpec.PARENT;
-            } else if (kt.equals("child")) {
+            } else if (kt.equals("tree:child")) {
                 kinType = TargetSpec.CHILD;
-            } else if (kt.equals("ancestor")) {
+            } else if (kt.equals("tree:ancestor")) {
                 kinType = TargetSpec.ANCESTOR;
-            } else if (kt.equals("descendant")) {
+            } else if (kt.equals("tree:descendant")) {
                 kinType = TargetSpec.DESCENDANT;
             } else {
-                throw new SAXException("'target' requires a 'kinType' of 'parent', 'child', 'ancestor', or 'descendant'.");
+                throw new SAXException("target requires a primitiveRel of tree:parent, tree:child, tree:ancestor, or tree:descendant.");
             }
             String nodeType = a.getValue("", "nodeType");
             if (nodeType == null)
