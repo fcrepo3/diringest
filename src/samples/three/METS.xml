@@ -170,7 +170,7 @@
     </METS:fileGrp>
     <METS:fileGrp>
       <METS:fileGrp>
-        <METS:file ID="SCHEDULE" MIMETYPE="application/msexcel">
+        <METS:file ID="SCHEDULE" MIMETYPE="application/vnd.ms-excel">
           <METS:FLocat LOCTYPE="URL" xlink:href="file:///My Documents/School/Schedule.xls"/>
         </METS:file>
         <METS:file ID="SCHEDULE_DC" MIMETYPE="text/xml">
