@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<conversionRules>
+
+  <description>
+    Specifies simple containment relationships.
+  </description>
+
+  <namespace alias="sample" uri="http://example.org/example#"/>
+
+  <datastreamTemplate nodeType="oaidc">
+    <attribute name="id" value="DC"/>
+  </datastreamTemplate>
+
+  <objectTemplate nodeType="*">
+    <description>
+      Specifies a "contains" relationship between a node and any child,
+      and a "containedBy" relationship between a node and its parent.
+    </description>
+    <relationship name="sample:contains">
+      <target primitiveRel="tree:child" nodeType="*"/>
+    </relationship>
+    <relationship name="sample:containedBy">
+      <target primitiveRel="tree:parent" nodeType="*"/>
+    </relationship>
+  </objectTemplate>
+
+</conversionRules>

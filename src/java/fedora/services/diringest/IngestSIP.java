@@ -65,10 +65,13 @@ public class IngestSIP extends HttpServlet
             while (part != null) {
                 if (part.isFile()) {
                     FilePart filePart = (FilePart) part;
-                    if (filePart.getName().equals("sip")) {
-                        tempSIPFile = getTempFile(filePart);
-                    } else if (filePart.getName().equals("rules")) {
-                        tempRulesFile = getTempFile(filePart);
+                    String path = filePart.getFilePath();
+                    if (path != null && path.length() > 0) {
+                        if (filePart.getName().equals("sip")) {
+                            tempSIPFile = getTempFile(filePart);
+                        } else if (filePart.getName().equals("rules")) {
+                            tempRulesFile = getTempFile(filePart);
+                        }
                     }
                 }
 			    part = parser.readNextPart();
@@ -166,7 +169,7 @@ public class IngestSIP extends HttpServlet
             w.println("<html><body><h2>IngestSIP Test Form</h2><hr size=\"1\"/>");
             w.println("<form method=\"POST\" enctype=\"multipart/form-data\">");
             w.println("SIP File <input type=\"file\" size=\"50\" name=\"sip\"/><br/>");
-            w.println("Custom Rules File (Optional) <input type=\"rules\" size=\"50\" name=\"rules\"/><br/>");
+            w.println("Custom Rules File (Optional) <input type=\"file\" size=\"50\" name=\"rules\"/><br/>");
             w.println("<input type=\"submit\"/><br/>");
             w.println("</body></html>");
             w.flush();
