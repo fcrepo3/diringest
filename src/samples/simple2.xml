@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ALTERNATIVE #2 - This is just like ALTERNATIVE #1, except we have introduced finer-grained typing in the METS structMap. 
+      The div TYPE attribute is used to put more meaning into each node in the hierarchy.  A div TYPE explicitly asserts the kind of 
+      Fedora component the div should be mapped to (i.e., FedoraObject, FedoraDatastream), and also the kind of NARA entity 
+      the div represents (e.g., aggregateTemplate, documentTemplate, recordContent, recordMetadata).  
+      The div structure is deeper than the one presented in ALTERNATIVE #1 in that there is a unique div parent for each 
+      individual fptr element to provide explicit fine-grained typing of every piece of content or metadata.  -->
+<METS:mets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:METS="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd" OBJID="SIP_Example" TYPE="Multi-type Object" LABEL="DOD 5015 File Plan">
+<!-- SDP:  inserted xsi namespace declaration into root element (above).-->
+	<METS:metsHdr CREATEDATE="2005-01-15T02:30:41">
+		<METS:agent ROLE="CREATOR" TYPE="ORGANIZATION">
+			<METS:name>NARA - ERA</METS:name>
+		</METS:agent>
+	</METS:metsHdr>
+	<!-- SDP:  fixed XML ID attribute for dmdSec to be valid (no spaces allowed) -->
+	<METS:dmdSec ID="DMD_SIP_Example">
+		<METS:mdWrap MDTYPE="OTHER">
+			<METS:xmlData>
+				<SerDispAgreeId>01-201</SerDispAgreeId>
+				<SerTtl>SERIES 0031</SerTtl>
+				<SerCategory>Category2</SerCategory>
+				<SerDescrptn>SERIES 0031</SerDescrptn>
+				<SerPermRecInd>1</SerPermRecInd>
+				<SerVitalRecInd>1</SerVitalRecInd>
+				<SerVtlRecRvwPrdAmnt>6</SerVtlRecRvwPrdAmnt>
+				<SerVtlRecRvwPrdUnt>3</SerVtlRecRvwPrdUnt>
+				<SerLifCyclStrtDt>2005-01-01</SerLifCyclStrtDt>
+				<SerLfCclPhs>CFA</SerLfCclPhs>
+				<SerLfCclEndDt>2050-01-01</SerLfCclEndDt>
+				<SerDsplAthrtyOwner>Joe Bloggs</SerDsplAthrtyOwner>
+				<SerDsplAthrtyText>verify with CIA before disposal</SerDsplAthrtyText>
+				<SerAuthrOrOriginator>George Pestopolus</SerAuthrOrOriginator>
+				<SerOrigOrg>CACI</SerOrigOrg>
+				<SerSecCls>Unclassified</SerSecCls>
+			</METS:xmlData>
+		</METS:mdWrap>
+	</METS:dmdSec>
+	<METS:fileSec>
+		<METS:fileGrp>
+			<METS:fileGrp>
+				<METS:file ID="FILE-01" MIMETYPE="application/msword">
+					<!-- SDP:  fixed syntax of FLocat so it would validate. -->
+					<METS:FLocat LOCTYPE="URL" xlink:href="file:/DOD 5015/SERIES 0031/SoftwarePurchaseOrder.doc"/>
+				</METS:file>
+				<METS:file ID="FILE-01-META" MIMETYPE="text/xml">
+					<METS:FContent>
+						<METS:xmlData>
+							<RecCreator>Robert Whittier</RecCreator>
+							<RecFormat>MS Word Document</RecFormat>
+							<RecSize>1234</RecSize>
+							<RecLastModDate>2005-01-26T14:22:12Z</RecLastModDate>
+							<RecSubject>Chief of Staff letter to Dept. of Navy regarding Purchase Order Request</RecSubject>
+							<RecTitle>Purchase Order</RecTitle>
+							<RecManager>Joe Bloggs</RecManager>
+							<RecCompany>Dept. of Navy</RecCompany>
+							<RecCategory>category5</RecCategory>
+							<RecKeywords>purchase, order, software</RecKeywords>
+							<RecComments>Comments</RecComments>
+							<!-- fixed closing element name to match opening element name on RecHost -->
+							<RecHost>110.56.22.45</RecHost>
+							<RecLoc>C:\Purchase_Orders\SoftwarePurchaseOrder.doc</RecLoc>
+						</METS:xmlData>
+					</METS:FContent>
+				</METS:file>
+			</METS:fileGrp>
+			<METS:fileGrp>
+				<METS:file ID="FILE-02" MIMETYPE="application/msword">
+					<METS:FLocat LOCTYPE="URL" xlink:href="file:/DOD 5015/SERIES 0031/Hardware/HardwarePurchaseOrder.doc"/>
+				</METS:file>
+				<METS:file ID="FILE-02-META" MIMETYPE="text/xml">
+					<METS:FContent>
+						<METS:xmlData>
+							<RecCreator>Robert Whittier</RecCreator>
+							<RecFormat>MS Word Document</RecFormat>
+							<RecSize>43</RecSize>
+							<RecLastModDate>2005-01-15T14:22:12Z</RecLastModDate>
+							<RecSubject>Hardware Purchase Order Request</RecSubject>
+							<RecTitle>Purchase Order</RecTitle>
+							<RecManager>Joe Bloggs</RecManager>
+							<RecCompany>Dept. of Navy</RecCompany>
+							<RecCategory>category3</RecCategory>
+							<RecKeywords>purchase, order, hardware</RecKeywords>
+							<RecComments>Comments</RecComments>
+							<!-- fixed closing element name to match opening element name on RecHost -->
+							<RecHost>110.56.22.45</RecHost>
+							<RecLoc>C:\Purchase_Orders\HardwarePurchaseOrder.doc</RecLoc>
+						</METS:xmlData>
+					</METS:FContent>
+				</METS:file>
+			</METS:fileGrp>
+		</METS:fileGrp>
+	</METS:fileSec>
+	<!-- This is a structMap with highly-typed div elements.  The div TYPEs tell us what kind of Fedora entity to map to,
+	     	as well as the NARA Template types.  Note that for the div LABEL attribute, we use the original directory names
+	     	for div elements that are aggregateTemplate types.  For div elements that represent documentTemplate types, 
+	     	we carry over the 'RecTitle' metadata element from the metadata record that describes that document. -->
+	<METS:structMap TYPE="windows directory structure">
+		<!-- AGGREGATE TEMPLATE (for the ROOT of this SIP) - will be converted to a Fedora digital object-->
+		<!-- Note we use the DMDID attribute on the root div to point to SIP metadata in the dmdSec -->
+		<METS:div LABEL="DOD 5015" ORDER="1" TYPE="FedoraObject-aggregateTemplate" DMDID="DMD_SIP_Example">
+			<!-- AGGREGATE TEMPLATE (for SERIES folder object)  - will be converted to a Fedora digital object-->
+			<METS:div LABEL="SERIES 0031" ORDER="1" TYPE="FedoraObject-aggregateTemplate">
+				<!-- DOCUMENT TEMPLATE  (for a record object) - wil be converted to a Fedora digital object -->
+				<METS:div LABEL="Purchase Order" ORDER="1" TYPE="FedoraObject-documentTemplate">
+					<!-- Parts of the record (content and metadata) - both will appear as Datastreams in a Fedora digital object-->
+					<METS:div LABEL="Record Content" ORDER="1" TYPE="FedoraDatastream-recordContent">
+						<METS:fptr FILEID="FILE-01"/>
+					</METS:div>
+					<METS:div LABEL="Record Metadata" ORDER="1" TYPE="FedoraDatastream-recordMetadata">
+						<METS:fptr FILEID="FILE-01-META"/>
+					</METS:div>
+				</METS:div>
+				<!-- AGGREGATE TEMPLATE (for SERIES SUB-folder object)  - will be converted to a Fedora digital object-->
+				<METS:div LABEL="Hardware" ORDER="1" TYPE="FedoraObject-aggregateTemplate">
+					<!-- DOCUMENT TEMPLATE  (for a record object) - wil be converted to a Fedora digital object -->
+					<METS:div LABEL="Purchase Order" ORDER="1" TYPE="FedoraObject-documentTemplate">
+						<!-- Parts of the record (content and metadata) - both will appear as Datastreams in a Fedora digital object-->
+						<METS:div LABEL="Record Content" ORDER="1" TYPE="FedoraDatastream-recordContent">
+							<METS:fptr FILEID="FILE-02"/>
+						</METS:div>
+						<METS:div LABEL="Record Metadata" ORDER="1" TYPE="FedoraDatastream-recordMetadata">
+							<METS:fptr FILEID="FILE-02-META"/>
+						</METS:div>
+					</METS:div>
+				</METS:div>
+			</METS:div>
+		</METS:div>
+	</METS:structMap>
+</METS:mets>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<METS:mets xmlns:METS="http://www.loc.gov/METS/">
+	<METS:dmdSec ID="ABC">
+		<METS:mdWrap MDTYPE="OTHER">
+			<METS:xmlData>
+        <someRootElement>
+          <someInnerElement>some text</someInnerElement>
+        </someRootElement>
+			</METS:xmlData>
+		</METS:mdWrap>
+	</METS:dmdSec>
+  <METS:structMap>
+    <METS:div LABEL="Sample One Object 1" DMDID="ABC"/>
+  </METS:structMap>
+</METS:mets>

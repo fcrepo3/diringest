@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="diringest" default="dist" basedir=".">
+	<loadproperties srcFile="build.properties"/>
+	<path id="all-jars.path">
+		<pathelement location="${lib.httpclient}"/>
+		<pathelement location="${lib.log4j}"/>
+		<pathelement location="${lib.xerces}"/>
+		<pathelement location="${lib.xml-apis}"/>
+		<pathelement location="${lib.fedoraclient}"/>
+	</path>
+  <target name="classes" 
+          depends="prep"
+          description="build all java classes into temp/">
+    <javac srcdir="src/java" destdir="temp" 
+           includes="**" 
+           classpathref="all-jars.path"
+           optimize="${optimize}" debug="${debug}"/>
+  </target>
+  <target name="dist" depends="sip2fox"/>
+  <target name="sip2fox"
+          depends="classes"
+          description="build the sip2fox distribution in dist/sip2fox">
+    <copy todir="temp">
+       <fileset dir="src/java">
+           <include name="**/*.xml"/>
+           <include name="**/*.properties"/>
+       </fileset>
+    </copy>
+    <mkdir dir="dist/sip2fox"/>
+    <mkdir dir="dist/sip2fox/lib"/>
+    <jar jarfile="dist/sip2fox/lib/sip2fox.jar" basedir="temp" manifest="src/mfs/sip2fox.mfs"/>
+    <copy todir="dist/sip2fox/lib">
+      <fileset dir="lib"/>
+    </copy>
+    <copy todir="dist/sip2fox">
+      <fileset dir="src/bat"/>
+      <fileset dir="src/sh"/>
+    </copy>
+    <mkdir dir="dist/sip2fox/samples"/>
+    <copy todir="dist/sip2fox/samples">
+      <fileset dir="src/samples"/>
+    </copy>
+    <mkdir dir="dist/doc"/>
+    <copy todir="dist/sip2fox/doc">
+      <fileset dir="src/doc/sip2fox"/>
+    </copy>
+    <copy todir="dist/sip2fox/config">
+      <fileset dir="src/config"/>
+    </copy>
+  </target>
+  <target name="javadoc"
+          depends="prep"
+		  description="Build the documentation in dist/javadoc">
+    <javadoc 
+           classpathref="all-jars.path"
+           sourcepath="src/java"
+           destdir="dist/doc/api"
+           use="true"
+           windowtitle="diringest Javadocs">
+      <fileset dir="src/java" defaultexcludes="yes">
+        <include name="fedora/services/diringest/**" />
+      </fileset>
+    </javadoc>
+  </target>
+  <target name="prep"
+          description="prepare for a build">
+    <mkdir dir="temp"/>
+    <mkdir dir="dist"/>
+  </target>
+  <target name="clean"
+          description="remove all build-generated stuff">
+      <delete dir="temp"/>
+      <delete dir="dist"/>
+  </target>
+</project>
