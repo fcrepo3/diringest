@@ -9,9 +9,9 @@
   </appender>
 
   <category name="fedora.services.diringest">
-    <priority value="DEBUG" />
-<!--
     <priority value="INFO" />
+<!--
+    <priority value="DEBUG" />
     <priority value="WARN" />
 -->
 <!--    <appender-ref ref="STDOUT"/> -->
