@@ -156,7 +156,7 @@ public class FOXMLMaker implements fedora.common.Constants {
                 }
             }
             out.println(">");
-            out.println("          <rdf:Description rdf:about=\"" + pid.toString() + "\">");
+            out.println("          <rdf:Description rdf:about=\"" + "info:fedora/" + pid.toString() + "\">");
             for (int i = 0; i < rels.size(); i++) {
                 Relationship rel = (Relationship) rels.get(i);
                 String target = rel.getExternalTarget();
@@ -164,7 +164,7 @@ public class FOXMLMaker implements fedora.common.Constants {
                     target = ((PID) m_pidMap.get(rel.getTarget())).toString();
                 }
                 out.println("            <" + rel.getName() 
-                        + " rdf:resource=\"" + enc(target) + "\"/>");
+                        + " rdf:resource=\"" + "info:fedora/" + enc(target) + "\"/>");
             }
             out.println("          </rdf:Description>");
             out.println("        </rdf:RDF>");

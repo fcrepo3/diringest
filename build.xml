@@ -12,6 +12,10 @@
 		<pathelement location="${lib.fedoraclient}"/>
 		<pathelement location="${lib.cos}"/>
 		<pathelement location="${lib.servlet}"/>
+		<pathelement location="${lib.saaj}"/>
+		<pathelement location="${lib.axis}"/>
+		<pathelement location="${lib.jaxrpc}"/>
+		<pathelement location="${lib.discovery}"/>
 	</path>
   <target name="classes" 
           depends="prep"
@@ -51,6 +55,11 @@
     <copy todir="dist/sip2fox/lib">
       <fileset dir="lib">
         <exclude name="servlet-2.3.jar"/>
+        <exclude name="cos.jar"/>
+        <exclude name="saaj.jar"/>
+        <exclude name="axis.jar"/>
+        <exclude name="jaxrpc.jar"/>
+        <exclude name="commons-discovery.jar"/>
       </fileset>
     </copy>
     <copy todir="dist/sip2fox">

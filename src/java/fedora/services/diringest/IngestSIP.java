@@ -9,11 +9,13 @@ import javax.servlet.*;
 import com.oreilly.servlet.multipart.*;
 import org.apache.log4j.*;
 
+import fedora.client.*;
 import fedora.common.*;
 import fedora.services.diringest.common.*;
 import fedora.services.diringest.ingest.*;
 import fedora.services.diringest.sip2fox.*;
 import fedora.services.diringest.sip2fox.pidgen.*;
+import fedora.server.management.*;
 
 /**
  * Accepts an HTTP Multipart POST of a SIP file, creates Fedora objects from
@@ -40,7 +42,7 @@ public class IngestSIP extends HttpServlet
 
     private Map m_stagedContent;
 
-    private String m_requestURI;
+    private String m_requestURL;
 
     /**
      * The servlet entry point.  http://host:port/diringest/ingestSIP
@@ -48,12 +50,9 @@ public class IngestSIP extends HttpServlet
     public void doPost(HttpServletRequest request, 
             HttpServletResponse response) 
             throws IOException {
-        if (m_requestURI == null) {
-            m_requestURI = request.getRequestURI();
+        if (m_requestURL == null) {
+            m_requestURL = request.getRequestURL().toString();
         }
-        //
-        // 
-        //
         File tempSIPFile = null;
         File tempRulesFile = null;
         FOXMLResult[] results = null;
@@ -97,10 +96,12 @@ public class IngestSIP extends HttpServlet
                                                     this); // DatastreamStage
             List ingestedPIDs = new ArrayList();
             try {
+                logger.info("Starting ingest of " + results.length + " objects");
                 for (int i = 0; i < results.length; i++) {
                     ingester.ingest(m_fedoraUser, m_fedoraPass, results[i]);
                     ingestedPIDs.add(results[i].getPID());
                 }
+                logger.info("Successfully ingested all objects");
             } catch (Exception e) {
                 // If anything goes wrong, back out (delete) any objects
                 // that were already created
@@ -134,7 +135,25 @@ public class IngestSIP extends HttpServlet
 
     private void purgeAll(String user, String pass, List pids) {
         logger.info("Backing out (purging) " + pids.size() + " already-ingested objects.");
-        // FIXME: Actually implement this
+        try {
+            FedoraAPIM apim = APIMStubFactory.getStub(m_fedoraHost,
+                                                      m_fedoraPort, 
+                                                      user,
+                                                      pass);
+            for (int i = 0; i < pids.size(); i++) {
+                String pid = ((PID) pids.get(i)).toString();
+                try {
+                    apim.purgeObject(pid,
+                                     "Automatically backed-out by diringest service", 
+                                     false);
+                    logger.info("Purged " + pid);
+                } catch (Exception e) {
+                    logger.warn("Unable to purge " + pid, e);
+                }
+            }
+        } catch (Exception e) {
+            logger.warn("Unable to purge already-ingested objects (Can't get a Fedora APIM instance)", e);
+        }
     }
 
     public void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -294,10 +313,11 @@ public class IngestSIP extends HttpServlet
 
     private URL getURL(String id) {
         URL url = null;
+        String urlString = m_requestURL + "?getStagedContent=" + id;
         try {
-            url = new URL(m_requestURI + "?getStagedContent=" + id);
+            url = new URL(urlString);
         } catch (MalformedURLException e) {  
-            // won't happen
+            logger.warn("Programmer error.  Bad url: " + urlString);
         }
         return url;
     }

@@ -6,8 +6,10 @@ import java.util.*;
 
 import org.apache.log4j.*;
 
+import fedora.client.*;
 import fedora.common.*;
 import fedora.services.diringest.sip2fox.*;
+import fedora.server.management.*;
 
 public class StagingIngester implements Ingester {
 
@@ -37,8 +39,10 @@ public class StagingIngester implements Ingester {
                     new StagingFOXMLParser(result.getStream(), 
                                            m_stage,
                                            stagedURLs);
+            logger.info("Parsed and staged " + result.getPID().toString());
             // Send the ingest request to Fedora
             doIngest(fedoraUser, fedoraPass, parser.getFOXMLString());
+            logger.info("Ingested " + result.getPID().toString());
         } finally {
             // Finally, clean the content out of the staging area
             for (int i = 0; i < stagedURLs.size(); i++) {
@@ -55,9 +59,13 @@ public class StagingIngester implements Ingester {
     private void doIngest(String fedoraUser, 
                           String fedoraPass,
                           String foxml) throws Exception {
-        System.out.println("Going to ingest:");
-        System.out.println(foxml);
-        // TODO: Use some SOAP api stuff here
+        FedoraAPIM apim = APIMStubFactory.getStub(m_fedoraHost,
+                                                  m_fedoraPort, 
+                                                  fedoraUser,
+                                                  fedoraPass);
+        apim.ingest(foxml.getBytes("UTF-8"), 
+                    "foxml1.0", 
+                    "Ingested using diringest service");
     }
 
 }
