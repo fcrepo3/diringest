@@ -12,12 +12,12 @@
   The value of nodeType is a string indicating a div TYPE.
   If nodeType is "*", the template applies to all nodes.
   
-  The value of kinType is one of the following:
+  The value of primitiveRel is one of the following:
   
-    parent | ancestor | sibling | child | descendant
+    tree:parent | tree:ancestor | tree:sibling | tree:child | tree:descendant
   </description>
 
-  <!-- Note: can use any of the following, plus pre-defined 'rdf' alias -->
+  <!-- Can declare any namespace alias except pre-defined 'rdf' or 'tree' -->
   <namespace alias="sample" uri="http://example.org/example#"/>
 
   <datastreamTemplate nodeType="oaidc">
@@ -29,16 +29,16 @@
       Specifies a "contains" relationship between a "folder" and any child.
     </description>
     <relationship name="sample:contains">
-      <target kinType="child" nodeType="file"/>
+      <target primitiveRel="tree:child" nodeType="file"/>
     </relationship>
   </objectTemplate>
 
   <objectTemplate nodeType="*">
     <description>
-      Specifies a "hasAncestor" relationship from any node to all ancestors.
+      Specifies a "hastree:ancestor" relationship from any node to all tree:ancestors.
     </description>
-    <relationship name="sample:hasAncestor">
-      <target kinType="ancestor" nodeType="*"/>
+    <relationship name="sample:hastree:ancestor">
+      <target primitiveRel="tree:ancestor" nodeType="*"/>
     </relationship>
   </objectTemplate>
   
@@ -48,15 +48,15 @@
       people and various corporate entities.
     </description>
     <relationship name="sample:supervises">
-      <target kinType="child" nodeType="person"/>
+      <target primitiveRel="tree:child" nodeType="person"/>
     </relationship>
     <relationship name="sample:memberOf">
-      <target kinType="ancestor" nodeType="department"/>
-      <target kinType="ancestor" nodeType="section"/>
-      <target kinType="ancestor" nodeType="division"/>
+      <target primitiveRel="tree:ancestor" nodeType="department"/>
+      <target primitiveRel="tree:ancestor" nodeType="section"/>
+      <target primitiveRel="tree:ancestor" nodeType="division"/>
     </relationship>
     <relationship name="sample:employeeOf">
-      <target kinType="ancestor" nodeType="company"/>
+      <target primitiveRel="tree:ancestor" nodeType="company"/>
     </relationship>
   </objectTemplate>
     

@@ -29,6 +29,7 @@ public class ConversionRules extends DefaultHandler {
     public ConversionRules(Map namespaces, Map dTemplates, Map oTemplates) {
         m_namespaces = new HashMap();
         m_namespaces.put("rdf", Constants.RDF.uri);
+        m_namespaces.put("tree", "info:fedora/fedora-system:def/tree#");
         m_dTemplates = dTemplates;
         m_oTemplates = oTemplates;
     }

@@ -31,9 +31,9 @@
           A "relationship" element must have a "name" attribute.  The element
           also contains one ore more "target" elements.
 
-          A "target" element must have a "kinType" element whose value is
-          "parent", "child", "ancestor", or "descendant".  The element also
-          must have a "nodeType" attribute.
+          A "target" element must have a "primitiveRel" element whose value is
+          "tree:parent", "tree:child", "tree:ancestor", or "tree:descendant".  
+          The element also must have a "nodeType" attribute.
         </description>
         <start>
           <element name="conversionRules">
@@ -67,12 +67,12 @@
                     </attribute>
                     <oneOrMore>
                       <element name="target">
-                        <attribute name="kinType">
+                        <attribute name="primitiveRel">
                           <choice>
-                            <value>parent</value>
-                            <value>child</value>
-                            <value>ancestor</value>
-                            <value>descendant</value>
+                            <value>tree:parent</value>
+                            <value>tree:child</value>
+                            <value>tree:ancestor</value>
+                            <value>tree:descendant</value>
                           </choice>
                         </attribute>
                         <ref name="nodeTypeAttribute"/>
