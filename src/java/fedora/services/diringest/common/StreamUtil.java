@@ -9,21 +9,14 @@ import net.iharder.base64.*;
  */
 public abstract class StreamUtil {
 
+    public static final int STREAM_BUFFER_SIZE = 4096;
+
     /**
      * Pipe the input stream to the output stream while encoding to base 64.
      */
     public static void base64Encode(InputStream inStream, 
                                     OutputStream outStream) throws IOException {
-        OutputStream out = new Base64.OutputStream(outStream);
-        try {
-            byte[] buf = new byte[4096];
-            int len;
-            while ( ( len = inStream.read( buf ) ) > 0 ) {
-                out.write( buf, 0, len );
-            }
-        } finally {
-            inStream.close();
-        }
+        pipe(inStream, new Base64.OutputStream(outStream));
     }
 
     /**
@@ -31,12 +24,19 @@ public abstract class StreamUtil {
      */
     public static void base64Decode(InputStream inStream, 
                                     OutputStream outStream) throws IOException {
-        OutputStream out = new Base64.OutputStream(outStream, Base64.DECODE);
+        pipe(inStream, new Base64.OutputStream(outStream, Base64.DECODE));
+    }
+
+    /**
+     * Pipe the input stream directly to the output stream.
+     */
+    public static void pipe(InputStream inStream,
+                            OutputStream outStream) throws IOException {
         try {
-            byte[] buf = new byte[4096];
+            byte[] buf = new byte[STREAM_BUFFER_SIZE];
             int len;
             while ( ( len = inStream.read( buf ) ) > 0 ) {
-                out.write( buf, 0, len );
+                outStream.write( buf, 0, len );
             }
         } finally {
             inStream.close();

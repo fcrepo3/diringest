@@ -10,29 +10,43 @@
 		<pathelement location="${lib.xerces}"/>
 		<pathelement location="${lib.xml-apis}"/>
 		<pathelement location="${lib.fedoraclient}"/>
+		<pathelement location="${lib.cos}"/>
 		<pathelement location="${lib.servlet}"/>
 	</path>
   <target name="classes" 
           depends="prep"
-          description="build all java classes into temp/">
-    <javac srcdir="src/java" destdir="temp" 
+          description="build all java classes into temp/classes">
+    <javac srcdir="src/java" destdir="temp/classes" 
            includes="**" 
            classpathref="all-jars.path"
            optimize="${optimize}" debug="${debug}"/>
   </target>
-  <target name="dist" depends="sip2fox"/>
+  <target name="dist" depends="sip2fox, diringest"/>
+  <target name="diringest"
+          depends="classes"
+          description="build the diringest distribution in dist/diringest">
+    <copy todir="temp/webapp">
+      <fileset dir="src/webapp"/>
+    </copy>
+    <mkdir dir="temp/webapp/WEB-INF/classes"/>
+    <copy todir="temp/webapp/WEB-INF/classes">
+      <fileset dir="temp/classes"/>
+    </copy>
+    <mkdir dir="temp/webapp/WEB-INF/lib"/>
+    <copy todir="temp/webapp/WEB-INF/lib">
+      <fileset dir="lib">
+        <exclude name="servlet-2.3.jar"/>
+      </fileset>
+    </copy>
+    <mkdir dir="dist/diringest"/>
+    <jar jarfile="dist/diringest/diringest.war" basedir="temp/webapp"/>
+  </target>
   <target name="sip2fox"
           depends="classes"
           description="build the sip2fox distribution in dist/sip2fox">
-    <copy todir="temp">
-       <fileset dir="src/java">
-           <include name="**/*.xml"/>
-           <include name="**/*.properties"/>
-       </fileset>
-    </copy>
     <mkdir dir="dist/sip2fox"/>
     <mkdir dir="dist/sip2fox/lib"/>
-    <jar jarfile="dist/sip2fox/lib/sip2fox.jar" basedir="temp" manifest="src/mfs/sip2fox.mfs"/>
+    <jar jarfile="dist/sip2fox/lib/sip2fox.jar" basedir="temp/classes" manifest="src/mfs/sip2fox.mfs"/>
     <copy todir="dist/sip2fox/lib">
       <fileset dir="lib">
         <exclude name="servlet-2.3.jar"/>
@@ -71,6 +85,7 @@
   <target name="prep"
           description="prepare for a build">
     <mkdir dir="temp"/>
+    <mkdir dir="temp/classes"/>
     <mkdir dir="dist"/>
   </target>
   <target name="clean"
