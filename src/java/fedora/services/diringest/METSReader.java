@@ -46,23 +46,6 @@ public class METSReader extends DefaultHandler {
         spf.setNamespaceAware(true);
         SAXParser parser = spf.newSAXParser();
         parser.parse(xml, this);
-
-        /*
-        Iterator iter = m_contentMap.values().iterator();
-        while (iter.hasNext()) {
-            SIPContent c = (SIPContent) iter.next();
-            System.out.println("## Content id = " + c.getID());
-            System.out.println("    wasInline = " + c.wasInline());
-            System.out.println("    mimeType  = " + c.getMIMEType());
-            BufferedReader reader = new BufferedReader(new InputStreamReader(c.getInputStream()));
-            String line = reader.readLine();
-            while (line != null) {
-                System.out.println(line);
-                line = reader.readLine();
-            }
-            reader.close();
-        }
-        */
     }
 
     public TreeNode getRoot() {

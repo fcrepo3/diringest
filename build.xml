@@ -10,6 +10,7 @@
 		<pathelement location="${lib.xerces}"/>
 		<pathelement location="${lib.xml-apis}"/>
 		<pathelement location="${lib.fedoraclient}"/>
+		<pathelement location="${lib.servlet}"/>
 	</path>
   <target name="classes" 
           depends="prep"
@@ -33,7 +34,9 @@
     <mkdir dir="dist/sip2fox/lib"/>
     <jar jarfile="dist/sip2fox/lib/sip2fox.jar" basedir="temp" manifest="src/mfs/sip2fox.mfs"/>
     <copy todir="dist/sip2fox/lib">
-      <fileset dir="lib"/>
+      <fileset dir="lib">
+        <exclude name="servlet-2.3.jar"/>
+      </fileset>
     </copy>
     <copy todir="dist/sip2fox">
       <fileset dir="src/bat"/>
