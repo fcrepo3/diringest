@@ -5,7 +5,7 @@ import java.io.*;
 
 public interface DatastreamStage {
 
-    public URL stageContent(InputStream content) throws IOException;
+    public URL stageContent(File file) throws IOException;
 
     public void unStageContent(URL location) throws IOException;
 

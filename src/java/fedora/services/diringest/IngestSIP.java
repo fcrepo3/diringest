@@ -38,12 +38,19 @@ public class IngestSIP extends HttpServlet
     private String m_fedoraUser;
     private String m_fedoraPass;
 
+    private Map m_stagedContent;
+
+    private String m_requestURI;
+
     /**
      * The servlet entry point.  http://host:port/diringest/ingestSIP
      */
     public void doPost(HttpServletRequest request, 
             HttpServletResponse response) 
             throws IOException {
+        if (m_requestURI == null) {
+            m_requestURI = request.getRequestURI();
+        }
         //
         // 
         //
@@ -111,8 +118,7 @@ public class IngestSIP extends HttpServlet
 
             doSuccess(ingestedPIDs, response);
 		} catch (Exception e) {
-            // FIXME: Use log4j here
-            e.printStackTrace();
+            logger.warn("Error", e);
             doError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
                     e.getClass().getName() + ": " + e.getMessage(), response);
         } finally {
@@ -133,16 +139,31 @@ public class IngestSIP extends HttpServlet
 
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
-        response.setStatus(200);
-        response.setContentType("text/html");
-        PrintWriter w = response.getWriter();
-        w.println("<html><body><h2>IngestSIP</h2><hr size=\"1\"/>");
-        w.println("<form method=\"POST\" enctype=\"multipart/form-data\">");
-        w.println("<input type=\"file\" size=\"20\" name=\"sip\"/><br/>");
-        w.println("<input type=\"submit\"/><br/>");
-        w.println("</body></html>");
-        w.flush();
-        w.close();
+        String id = request.getParameter("getStagedContent");
+        if (id == null) {
+            response.setStatus(200);
+            response.setContentType("text/html");
+            PrintWriter w = response.getWriter();
+            w.println("<html><body><h2>IngestSIP</h2><hr size=\"1\"/>");
+            w.println("<form method=\"POST\" enctype=\"multipart/form-data\">");
+            w.println("<input type=\"file\" size=\"20\" name=\"sip\"/><br/>");
+            w.println("<input type=\"submit\"/><br/>");
+            w.println("</body></html>");
+            w.flush();
+            w.close();
+        } else {
+            File f = (File) m_stagedContent.get(id);
+            if (f == null) {
+                doError(HttpServletResponse.SC_NOT_FOUND,
+                        "No such staged content: " + id, response);
+            } else {
+                response.setStatus(200);
+                response.setContentType("application/octet-stream");
+                OutputStream out = response.getOutputStream();
+                StreamUtil.pipe(new FileInputStream(f), out);
+                out.close();
+            }
+        }
 	}
 
     public void doSuccess(List pids, 
@@ -160,8 +181,7 @@ public class IngestSIP extends HttpServlet
             w.flush();
             w.close();
         } catch (Exception e) {
-            // FIXME: use log4j here
-            e.printStackTrace();
+            logger.warn("Error sending successful pidList", e);
         }
     }
 
@@ -174,8 +194,7 @@ public class IngestSIP extends HttpServlet
             PrintWriter w = response.getWriter();
             w.println(message);
         } catch (Exception e) {
-            // FIXME: use log4j here
-            e.printStackTrace();
+            logger.warn("Error sending error response", e);
         }
     }
 
@@ -196,6 +215,7 @@ public class IngestSIP extends HttpServlet
      * @throws ServletException If the servet cannot be initialized.
      */
     public void init() throws ServletException {
+        m_stagedContent = new HashMap();
         try {
             // Get the default rules from WEB-INF/classes/crules.xml
             InputStream rulesStream = this.getClass().getResourceAsStream("/crules.xml");
@@ -249,13 +269,37 @@ public class IngestSIP extends HttpServlet
     // From DatastreamStage interface
     //
 
-    public URL stageContent(InputStream content) throws IOException {
-        // FIXME: implement this
-        return null;
+    public URL stageContent(File file) throws IOException {
+        int c = file.hashCode();
+        String id;
+        if (c < 0) {
+            id = "0" + c;
+        } else {
+            id = "1" + c;
+        }
+        m_stagedContent.put(id, file);
+        return getURL(id);
     }
 
     public void unStageContent(URL location) throws IOException {
-        // FIXME: implement this
+        String[] parts = location.toString().split("/");
+        String id = parts[parts.length - 1];
+        File f = (File) m_stagedContent.get(id);
+        if (f == null) {
+            throw new IOException("Error un-staging: Not staged: " + id);
+        } else {
+            f.delete();
+        }
+    }
+
+    private URL getURL(String id) {
+        URL url = null;
+        try {
+            url = new URL(m_requestURI + "?getStagedContent=" + id);
+        } catch (MalformedURLException e) {  
+            // won't happen
+        }
+        return url;
     }
 
 }

@@ -1,9 +1,11 @@
 package fedora.services.diringest.ingest;
 
 import java.io.*;
+import java.net.*;
 import java.util.*;
 import javax.xml.parsers.*;
 
+import net.iharder.base64.*;
 import org.apache.log4j.*;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
@@ -30,6 +32,9 @@ public class StagingFOXMLParser extends DefaultHandler {
     private int m_xmlContentLevel;
     private boolean m_inBinaryContent;
 
+    private File m_stageFile;
+    private Writer m_stageWriter;
+
     public StagingFOXMLParser(InputStream foxml, 
                               DatastreamStage stage,
                               List stagedURLs) throws Exception {
@@ -52,8 +57,23 @@ public class StagingFOXMLParser extends DefaultHandler {
                              Attributes a) throws SAXException {
         if (qName.equals("xmlContent")) {
             m_xmlContentLevel++;
-        } else if (m_xmlContentLevel == 0 && qName.equals("binaryContent")) {
+        }
+        if (m_xmlContentLevel == 0 && qName.equals("binaryContent")) {
             m_inBinaryContent = true;
+            try {
+                m_stageFile = File.createTempFile("diringest-stage", ".tmp");
+                m_stageFile.deleteOnExit();
+                m_stageWriter = new BufferedWriter(
+                                    new OutputStreamWriter(
+                                        new Base64.OutputStream(
+                                            new FileOutputStream(m_stageFile), Base64.DECODE)));
+            } catch (Exception e) {
+                if (m_stageFile != null) {
+                    m_stageFile.delete();
+                }
+                logger.warn("Unable to begin staging content", e);
+                throw new SAXException("Unable to begin staging content", e);
+            }
         } else {
             m_out.append("<" + qName);
             for (int i = 0; i < a.getLength(); i++) {
@@ -66,7 +86,13 @@ public class StagingFOXMLParser extends DefaultHandler {
 
     public void characters(char[] ch, int start, int length) throws SAXException {
         if (m_inBinaryContent) {
-            // FIXME: Decode to temp file
+            try {
+                m_stageWriter.write(ch, start, length);
+            } catch (IOException e) {
+                String msg = "Error writing to stage file";
+                logger.warn(msg, e);
+                throw new SAXException(msg, e);
+            }
         } else {
             m_out.append(ch, start, length);
         }
@@ -77,11 +103,22 @@ public class StagingFOXMLParser extends DefaultHandler {
                            String qName) throws SAXException {
         if (qName.equals("xmlContent")) {
             m_xmlContentLevel--;
-        } else if (m_xmlContentLevel == 0 && qName.equals("binaryContent")) {
-            // FIXME: Stage the content, add the URL to the list, and use it in xml
-            String url = "http://www.example.org/sdfsdf";
-            m_out.append("<contentLocation REF=\"" + url + "\" TYPE=\"URL\"/>\n");
-            m_inBinaryContent = false;
+        }
+        if (m_xmlContentLevel == 0 && qName.equals("binaryContent")) {
+            // Stage the content, add the URL to the list, and use it in xml
+            try {
+                m_stageWriter.flush();
+                m_stageWriter.close();
+                URL stagedLocation = m_stage.stageContent(m_stageFile);
+                m_stagedURLs.add(stagedLocation);
+                m_out.append("<contentLocation REF=\"" + stagedLocation.toString() + "\" TYPE=\"URL\"/>");
+                m_stageFile = null;
+                m_inBinaryContent = false;
+            } catch (IOException e) {
+                String msg = "Unable to stage content";
+                logger.warn(msg, e);
+                throw new SAXException(msg, e);
+            }
         } else {
             m_out.append("</" + qName + ">");
         }
