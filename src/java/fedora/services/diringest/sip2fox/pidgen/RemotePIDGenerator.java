@@ -45,14 +45,23 @@ public class RemotePIDGenerator implements PIDGenerator {
     }
 
     public PID[] getNextPIDs(int howMany, String user, String pass) throws IOException {
-        InputStream response = get(m_urlStart + howMany, user, pass);
-        return new PIDListReader(response).getPIDArray();
+        GetMethod getMethod = null;
+        try {
+            getMethod = get(m_urlStart + howMany, user, pass);
+            PIDListReader reader = new PIDListReader(getMethod.getResponseBodyAsStream());
+            return reader.getPIDArray();
+        } finally {
+            if (getMethod != null) {
+                getMethod.releaseConnection();
+            }
+        }
     }
 
-    private InputStream get(String url, String user, String pass) throws IOException {
+    private GetMethod get(String url, String user, String pass) throws IOException {
         UsernamePasswordCredentials creds = null;
         if (user != null) creds = new UsernamePasswordCredentials(user, pass);
         GetMethod get = null;
+        boolean ok = false;
         try {
             HttpClient client = new HttpClient(m_cManager);
             client.setConnectionTimeout(CONNECTION_TIMEOUT_MS); // wait x / 1000 seconds max
@@ -72,14 +81,15 @@ public class RemotePIDGenerator implements PIDGenerator {
                 throw new IOException("Server returned error: "
                         + resultCode + " " + HttpStatus.getStatusText(resultCode));
             }
-            return get.getResponseBodyAsStream();
+            ok = true;
+            return get;
         } catch (Exception e) {
             String msg = e.getMessage();
             if (msg == null) msg = e.getClass().getName();
             logger.warn("Error getting remote PID(s)", e);
             throw new IOException("Error getting remote PID(s): " + msg);
         } finally {
-            if (get != null) get.releaseConnection();
+            if (get != null && !ok) get.releaseConnection();
         }
     }
 
