@@ -19,6 +19,9 @@ public class METSReader extends DefaultHandler {
     private TreeNode m_root;
     private DataResolver m_dataResolver;
 
+    private DivNode m_rootDiv;
+    private DivNode m_currentDiv;
+
     private Map m_contentMap;
 
     private Map m_prefixMap;
@@ -39,6 +42,14 @@ public class METSReader extends DefaultHandler {
         spf.setNamespaceAware(true);
         SAXParser parser = spf.newSAXParser();
         parser.parse(xml, this);
+
+        // Now transform the div tree into the object tree (DivNode-to-TreeNode)
+        if (m_rootDiv == null) {
+            logger.warn("METS contained no div elements; no objects will be created.");
+        } else {
+
+        }
+
         /*
         Iterator iter = m_contentMap.values().iterator();
         while (iter.hasNext()) {
@@ -109,7 +120,24 @@ public class METSReader extends DefaultHandler {
                 }
             }
         } else if (uri.equals(METS) && localName.equals("div")) {
-            // if has no parent
+            String label = a.getValue("", "LABEL");
+            String type = a.getValue("", "TYPE");
+            logger.info("Parsing div with TYPE = " + type + ", LABEL = " + label);
+            // if has no parent, this is the root
+            if (m_currentDiv == null) {
+                m_rootDiv = new DivNode(null, label, type);
+                m_currentDiv = m_rootDiv;
+            } else {
+                // the div we're inside is the parent of this one
+                DivNode newDiv = new DivNode(m_currentDiv, label, type);
+                m_currentDiv.addChild(newDiv);
+                m_currentDiv = newDiv;
+            }
+        } else if (uri.equals(METS) && localName.equals("fptr")) {
+            String contentID = a.getValue("", "FILEID");
+            if (m_currentDiv == null) {
+                throw new SAXException("METS:fptr must have a div element as a parent");
+            }
         }
     }
 
@@ -209,6 +237,8 @@ public class METSReader extends DefaultHandler {
                     throw new SAXException(msg);
                 }
             }
+        } else if (uri.equals(METS) && localName.equals("div")) {
+            m_currentDiv = m_currentDiv.getParent();
         }
     }
 
