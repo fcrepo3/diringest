@@ -28,6 +28,7 @@ public class METSReader extends DefaultHandler {
     private List m_prefixList;
 
     private String m_currentID;
+    private String m_currentLabel;
     private String m_currentMIME;
     private String m_currentLocator;
     private String m_currentLocatorType;
@@ -90,6 +91,8 @@ public class METSReader extends DefaultHandler {
             if (m_currentID == null) {
                 throw new SAXException("dmdSec element must have an ID attribute");
             }
+            m_currentLabel = a.getValue("", "LABEL");
+            m_currentMIME = a.getValue("", "MIMETYPE");
             logger.info("Started parsing dmdSec (ID = " + m_currentID + ")");
         } else if (m_currentID != null) {
             // Inside a dmdSec or file
@@ -142,6 +145,19 @@ public class METSReader extends DefaultHandler {
                 DivNode newDiv = new DivNode(m_currentDiv, label, type);
                 m_currentDiv.addChild(newDiv);
                 m_currentDiv = newDiv;
+            }
+            // add any DMDID references
+            String dmdIDs = a.getValue("DMDID");
+            if (dmdIDs != null && dmdIDs.length() > 0) {
+                String[] ids = dmdIDs.split(" ");
+                if (ids.length == 0) {
+                    ids = new String[1];
+                    ids[0] = dmdIDs;
+                }
+                for (int i = 0; i < ids.length; i++) {
+                    // make a sub-div
+                    m_currentDiv.addDMD(getSIPContent(ids[i]));
+                }
             }
         } else if (uri.equals(METS) && localName.equals("fptr")) {
             String contentID = a.getValue("", "FILEID");
@@ -218,7 +234,11 @@ public class METSReader extends DefaultHandler {
                 throw new SAXException("dmdSec element must contain xmlData");
             }
             m_filesToDelete.add(m_xmlDataFile);
-            m_contentMap.put(m_currentID, new FileBasedSIPContent(m_currentID, true, INLINE_XML_MIMETYPE, m_xmlDataFile));
+            String mime = m_currentMIME;
+            if (mime == null) mime = INLINE_XML_MIMETYPE;
+            FileBasedSIPContent content = new FileBasedSIPContent(m_currentID, true, mime, m_xmlDataFile);
+            content.setLabel(m_currentLabel);
+            m_contentMap.put(m_currentID, content);
             m_xmlDataFile = null;
             m_currentID = null;
         } else if (m_currentID != null) {

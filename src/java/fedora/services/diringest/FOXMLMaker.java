@@ -125,16 +125,33 @@ public class FOXMLMaker implements fedora.common.Constants {
     private void serializeRelationships(PID pid, TreeNode node, PrintWriter out) {
     }
 
-    private void serializeOtherInlineDatastreams(TreeNode node, PrintWriter out) {
+    private void serializeOtherInlineDatastreams(TreeNode node, PrintWriter out) throws IOException {
         Iterator iter = node.getSIPContents().iterator();
         while (iter.hasNext()) {
             SIPContent content = (SIPContent) iter.next();
             if (content.wasInline()) {
-                String id = getID(content.getType());
+                String id = getID(content);
                 if (!id.equals("RELS-EXT")) {
-                    startDatastream(id, "X", "A", "true", out);
+                    startDatastream(id, content, out);
+                    out.println("      <xmlData>");
+                    printXML(content.getInputStream(), out);
+                    out.println("      </xmlData>");
+                    endDatastream(out);
                 }
             }
+        }
+    }
+
+    private void printXML(InputStream in, PrintWriter out) throws IOException {
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+            String line = reader.readLine();
+            while (line != null) {
+                out.println(line);
+                line = reader.readLine();
+            }
+        } finally {
+            in.close();
         }
     }
 
@@ -145,10 +162,24 @@ public class FOXMLMaker implements fedora.common.Constants {
         if (content.wasInline()) cg = "X";
         String st = "A";
         String v = "true";
+        String m = content.getMIMEType();
+        String l = content.getLabel();
+        String labelInfo = "";
+        if (l != null) {
+            labelInfo = " LABEL=\"" + enc(l) + "\"";
+        }
         out.println("  <datastream ID=\"" + id + "\""
                                + " CONTROL_GROUP=\"" + cg + "\""
                                + " STATE=\"" + st + "\""
                                + " VERSIONABLE=\"" + v + "\">");
+        out.println("    <datastreamVersion ID=\"" + id + ".0\""
+                                        + " MIMETYPE=\"" + m + "\""
+                                        + labelInfo + ">");
+    }
+
+    private void endDatastream(PrintWriter out) {
+        out.println("    </datastreamVersion>");
+        out.println("  </datastream>");
     }
 
     private void serializeManagedDatastreams(TreeNode node, PrintWriter out) {

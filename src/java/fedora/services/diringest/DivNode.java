@@ -19,12 +19,14 @@ public class DivNode implements TreeNode {
     private List m_objectChildren;
     private SIPContent m_sipContent;
     private List m_sipContents;
+    private List m_dmds;
 
     public DivNode(DivNode parent, String label, String type) {
         m_parent = parent;
         m_label = label;
         m_type = type;
         m_children = new ArrayList();
+        m_dmds = new ArrayList();
     }
 
     //
@@ -55,9 +57,11 @@ public class DivNode implements TreeNode {
     public String getLabel() { return m_label; }
 
     public List getSIPContents() {
-        // Return a list of SIPContent for each child DIV that's a datastream
+        // Return a list of SIPContent with all referenced DMDs,
+        // and for each child DIV that's a datastream
         if (m_sipContents == null) {
             m_sipContents = new ArrayList();
+            m_sipContents.addAll(m_dmds);
             for (int i = 0; i < m_children.size(); i++) {
                 DivNode child = (DivNode) m_children.get(i);
                 SIPContent content = child.getSIPContent();
@@ -66,6 +70,10 @@ public class DivNode implements TreeNode {
             }
         }
         return m_sipContents;
+    }
+
+    public void addDMD(SIPContent content) {
+        m_dmds.add(content);
     }
 
     public void print(String indent, PrintWriter out) {
