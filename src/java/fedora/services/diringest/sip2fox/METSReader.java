@@ -185,7 +185,11 @@ public class METSReader extends DefaultHandler {
         // do we have any newly-mapped namespaces?
         while (m_prefixList.size() > 0) {
             String prefix = (String) m_prefixList.remove(0);
-            out.write(" xmlns:" + prefix + "=\"" + enc((String) m_prefixMap.get(prefix)) + "\"");
+            out.write(" xmlns");
+            if (prefix.length() > 0) {
+                out.write(":");
+            }
+            out.write(prefix + "=\"" + enc((String) m_prefixMap.get(prefix)) + "\"");
         }
         for (int i = 0; i < a.getLength(); i++) {
             out.write(" " + a.getQName(i) + "=\"" + enc(a.getValue(i)) + "\"");
