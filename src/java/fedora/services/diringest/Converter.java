@@ -26,7 +26,7 @@ public class Converter {
      *
      * @throws IOException If conversion failed for any reason.
      */
-    public FOXMLResult[] convert(File sipFile) throws IOException {
+    public FOXMLResult[] convert(File sipFile) throws Exception {
         SIPReader reader = getSIPReader(sipFile);
         try {
             List resultList = new ArrayList();
@@ -41,7 +41,7 @@ public class Converter {
     }
 
     // only supports zip-based sips for now
-    private SIPReader getSIPReader(File sipFile) throws IOException {
+    private SIPReader getSIPReader(File sipFile) throws Exception {
         if (!sipFile.exists()) {
             throw new IOException("File not found: " + sipFile.getPath());
         }

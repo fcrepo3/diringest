@@ -17,16 +17,19 @@ public class CRules extends DefaultHandler {
     private Map m_dTemplates;
 
     private String m_templateNodeType;
+    private List m_attribs;
     private List m_relSpecs;
     private URI m_relationshipURI;
     private List m_targetSpecs;
 
-    public CRules(Map oTemplates) {
+    public CRules(Map dTemplates, Map oTemplates) {
+        m_dTemplates = dTemplates;
         m_oTemplates = oTemplates;
     }
 
     public CRules(InputStream xml) throws Exception {
         m_oTemplates = new HashMap();
+        m_dTemplates = new HashMap();
         SAXParserFactory spf = SAXParserFactory.newInstance();
         spf.setNamespaceAware(true);
         SAXParser parser = spf.newSAXParser();
@@ -37,7 +40,7 @@ public class CRules extends DefaultHandler {
         return (ObjectTemplate) m_oTemplates.get(nodeType);
     }
 
-    public ObjectTemplate getDatastreamTemplate(String nodeType) {
+    public DatastreamTemplate getDatastreamTemplate(String nodeType) {
         return (DatastreamTemplate) m_dTemplates.get(nodeType);
     }
 
@@ -49,8 +52,26 @@ public class CRules extends DefaultHandler {
             m_templateNodeType = a.getValue("", "nodeType");
             if (m_templateNodeType == null)
                 throw new SAXException("'objectTemplate' requires a 'nodeType' attribute.");
-            logger.info("Parsing template: " + m_templateNodeType);
+            logger.info("Parsing object template: " + m_templateNodeType);
+            m_attribs = new ArrayList();
             m_relSpecs = new ArrayList();
+        }
+        if (localName.equals("datastreamTemplate")) {
+            m_templateNodeType = a.getValue("", "nodeType");
+            if (m_templateNodeType == null)
+                throw new SAXException("'datastreamTemplate' requires a 'nodeType' attribute.");
+            logger.info("Parsing datastream template: " + m_templateNodeType);
+            m_attribs = new ArrayList();
+        }
+        if (localName.equals("attribute")) {
+            String name = a.getValue("", "name");
+            if (name == null)
+                throw new SAXException("'attribute' requires 'name' attribute.");
+            String value = a.getValue("", "value");
+            if (value == null)
+                throw new SAXException("'attribute' requires 'value' attribute.");
+            logger.info("Parsed attribute: " + name + " = " + value);
+            m_attribs.add(new Attribute(name, value));
         }
         if (localName.equals("relationship")) {
             String uriString = a.getValue("", "uri");
@@ -95,8 +116,10 @@ public class CRules extends DefaultHandler {
                            String qName) {
         if (localName.equals("relationship")) {
             m_relSpecs.add(new RelSpec(m_relationshipURI, m_targetSpecs));
+        } else if (localName.equals("datastreamTemplate")) {
+            m_dTemplates.put(m_templateNodeType, new DatastreamTemplate(m_templateNodeType, m_attribs));
         } else if (localName.equals("objectTemplate")) {
-            m_oTemplates.put(m_templateNodeType, new ObjectTemplate(m_templateNodeType, m_relSpecs));
+            m_oTemplates.put(m_templateNodeType, new ObjectTemplate(m_templateNodeType, m_attribs, m_relSpecs));
         }
     }
 
@@ -108,16 +131,26 @@ public class CRules extends DefaultHandler {
         return m_dTemplates;
     }
 
+    /**
+     * Get a human-readable description of what the conversion rules specify.
+     *
+     * This is a good way of testing that a configuration does what you expect it to.
+     */
     public String getDescription() {
         StringBuffer out = new StringBuffer();
         out.append("Contains " + m_dTemplates.keySet().size() + " datastream templates.\n");
-        out.append("Contains " + m_oTemplates.keySet().size() + " object templates.\n");
-        Iterator iter = m_oTemplates.values().iterator();
-        int tNum = 0;
+        Iterator iter = m_dTemplates.values().iterator();
         while (iter.hasNext()) {
-            tNum++;
+            DatastreamTemplate t = (DatastreamTemplate) iter.next();
+            out.append("For " + t.getNodeType() + " nodes:\n");
+            appendAttributes(t.getAttributes(), out);
+        }
+        out.append("Contains " + m_oTemplates.keySet().size() + " object templates.\n");
+        iter = m_oTemplates.values().iterator();
+        while (iter.hasNext()) {
             ObjectTemplate t = (ObjectTemplate) iter.next();
             out.append("For " + t.getNodeType() + " nodes:\n");
+            appendAttributes(t.getAttributes(), out);
             for (int i = 0; i < t.getRelSpecs().size(); i++) {
                 RelSpec r = (RelSpec) t.getRelSpecs().get(i);
                 out.append("  Assume relationship " + r.getURI().toString() + "\n");
@@ -134,6 +167,13 @@ public class CRules extends DefaultHandler {
             }
         }
         return out.toString();
+    }
+
+    private void appendAttributes(List attribs, StringBuffer out) {
+        for (int i = 0; i < attribs.size(); i++) {
+            Attribute a = (Attribute) attribs.get(i);
+            out.append("  Assume attribute " + a.getName() + " = " + a.getValue() + "\n");
+        }
     }
 
     public static void main(String[] args) throws Exception {

@@ -3,9 +3,9 @@
   <METS:dmdSec ID="ABC">
     <METS:mdWrap MDTYPE="OTHER">
       <METS:xmlData>
-        <someRootElement>
-          <someInnerElement>some text</someInnerElement>
-        </someRootElement>
+        <myns:someRootElement xmlns:myns="urn:example:myns">
+          <myns:someInnerElement someInnerAttribute="true">some text</myns:someInnerElement>
+        </myns:someRootElement>
       </METS:xmlData>
     </METS:mdWrap>
   </METS:dmdSec>

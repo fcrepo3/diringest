@@ -37,9 +37,8 @@
       <fileset dir="src/sh"/>
     </copy>
     <mkdir dir="dist/sip2fox/samples"/>
-    <copy todir="dist/sip2fox/samples">
-      <fileset dir="src/samples"/>
-    </copy>
+    <zip zipfile="dist/sip2fox/samples/one.zip" basedir="src/samples/one"/>
+    <copy todir="dist/sip2fox/samples" file="src/samples/readme.txt"/>
     <mkdir dir="dist/doc"/>
     <copy todir="dist/sip2fox/doc">
       <fileset dir="src/doc/sip2fox"/>

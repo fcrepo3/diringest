@@ -43,9 +43,9 @@ public abstract class SIP2FOX {
             FOXMLResult[] r = c.convert(new File(args[0]));
             logger.info("Saving results...");
             File dir = new File(args[1]);
-            dir.mkdirs();
             for (int i = 0; i < r.length; i++) {
                 File foxmlFile = new File(dir, r[i].getPID().toFilename());
+                if (i == 0) dir.mkdirs();
                 FileOutputStream outStream = new FileOutputStream(foxmlFile);
                 r[i].dump(outStream);
                 outStream.close();
