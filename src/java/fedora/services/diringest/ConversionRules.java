@@ -8,10 +8,10 @@ import org.apache.log4j.*;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 
-public class CRules extends DefaultHandler {
+public class ConversionRules extends DefaultHandler {
 
     private static final Logger logger =
-            Logger.getLogger(CRules.class.getName());
+            Logger.getLogger(ConversionRules.class.getName());
 
     private Map m_oTemplates;
     private Map m_dTemplates;
@@ -22,18 +22,24 @@ public class CRules extends DefaultHandler {
     private URI m_relationshipURI;
     private List m_targetSpecs;
 
-    public CRules(Map dTemplates, Map oTemplates) {
+    public ConversionRules(Map dTemplates, Map oTemplates) {
         m_dTemplates = dTemplates;
         m_oTemplates = oTemplates;
     }
 
-    public CRules(InputStream xml) throws Exception {
+    public ConversionRules(InputStream xml) throws Exception {
         m_oTemplates = new HashMap();
         m_dTemplates = new HashMap();
         SAXParserFactory spf = SAXParserFactory.newInstance();
         spf.setNamespaceAware(true);
         SAXParser parser = spf.newSAXParser();
         parser.parse(xml, this);
+    }
+
+    public List getRelationships(TreeNode node) {
+        List rels = new ArrayList();
+        // TODO: Actually populate these
+        return rels;
     }
 
     public ObjectTemplate getObjectTemplate(String nodeType) {
@@ -178,7 +184,7 @@ public class CRules extends DefaultHandler {
 
     public static void main(String[] args) throws Exception {
         SIP2FOX.initLogging();
-        CRules r = new CRules(new FileInputStream(new File(args[0])));
+        ConversionRules r = new ConversionRules(new FileInputStream(new File(args[0])));
         System.out.println(r.getDescription());
     }
 
