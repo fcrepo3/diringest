@@ -77,7 +77,7 @@ public class METSReader extends DefaultHandler {
      * XML datastreams.
      */
     public void close() throws IOException {
-        logger.info("Deleting " + m_filesToDelete.size() + " temporary files.");
+        logger.info("Deleting " + m_filesToDelete.size() + " temporary file(s).");
         for (int i = 0; i < m_filesToDelete.size(); i++) {
             File f = (File) m_filesToDelete.get(i);
             f.delete();
@@ -135,10 +135,22 @@ public class METSReader extends DefaultHandler {
             }
         } else if (uri.equals(METS) && localName.equals("fptr")) {
             String contentID = a.getValue("", "FILEID");
-            if (m_currentDiv == null) {
-                throw new SAXException("METS:fptr must have a div element as a parent");
+            if (contentID == null) {
+                throw new SAXException("METS:fptr must have a FILEID attribute");
             }
+            if (m_currentDiv == null) {
+                throw new SAXException("METS:fptr must occur inside a div element");
+            }
+            m_currentDiv.setSIPContent(getSIPContent(contentID));
         }
+    }
+
+    private SIPContent getSIPContent(String contentID) throws SAXException {
+        SIPContent c = (SIPContent) m_contentMap.get(contentID);
+        if (c == null) {
+            throw new SAXException("SIP content referenced from structMap was not found in dmdSec or fileSec: " + contentID);
+        }
+        return c;
     }
 
     public void characters(char[] ch, int start, int length) throws SAXException {
@@ -238,7 +250,7 @@ public class METSReader extends DefaultHandler {
                 }
             }
         } else if (uri.equals(METS) && localName.equals("div")) {
-            m_currentDiv = m_currentDiv.getParent();
+            m_currentDiv = m_currentDiv.getParentDivNode();
         }
     }
 
