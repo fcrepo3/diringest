@@ -38,7 +38,7 @@
   
   <!--
     This template derives several job-related relationships from 
-    a structMap that represents an org chart:
+    a structMap that represents an org chart tree:
     
     company                
       division
