@@ -33,3 +33,5 @@ Contents    : METS.xml
               My Documents/School/Schedule.xls
               My Documents/Papers/Fahrenheit451.doc          
 Output      : A FOXML file for each file and directory.
+              ... with a dublin core datastream for each.
+              ... and a license datastream for each file.

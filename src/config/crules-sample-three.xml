@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<conversionRules>
+
+  <description>
+    Conversion rules appropriate for use with sample three.zip
+  </description>
+  
+  <!--                                          -->
+  <!-- Namespace declarations for relationships -->
+  <!--                                          -->
+
+  <namespace alias="sample" uri="http://example.org/example#"/>
+
+  <!--                      -->
+  <!-- Datastream templates -->
+  <!--                      -->
+
+  <datastreamTemplate nodeType="dc">
+    <description>
+      Specifies that a datastream ID of "DC" for datastream divs with
+      TYPE="dc" in the METS StructMap.
+    </description>
+    <attribute name="id" value="DC"/>
+  </datastreamTemplate>
+  
+  <datastreamTemplate nodeType="content">
+    <description>
+      Specifies a datastream ID of "content" for datastream divs with
+      TYPE="content" in the METS StructMap.
+    </description>
+    <attribute name="id" value="content"/>
+  </datastreamTemplate>
+  
+  <datastreamTemplate nodeType="license">
+    <description>
+      Specifies a datastream ID of "license.rdf" for datastream divs with
+      TYPE="LICENSE" in the METS StructMap.
+    </description>
+    <attribute name="id" value="license.rdf"/>
+  </datastreamTemplate>
+  
+  <!--                  -->
+  <!-- Object templates -->
+  <!--                  -->
+  
+  <objectTemplate nodeType="folder">
+    <description>
+      Specifies a "containsFile" relationship between folders and their 
+      child files, and a "containsFolder" relationship between folders and
+      their child folders.
+    </description>
+    <relationship name="sample:containsFile">
+      <target primitiveRel="tree:child" nodeType="file"/>
+    </relationship>
+    <relationship name="sample:containsFolder">
+      <target primitiveRel="tree:child" nodeType="folder"/>
+    </relationship>
+  </objectTemplate>
+
+  <objectTemplate nodeType="*">
+    <description>
+      Specifies a "containedByFolder" relationship between all nodes and
+      their parent folders.
+    </description>
+    <relationship name="sample:containedByFolder">
+      <target primitiveRel="tree:parent" nodeType="folder"/>
+    </relationship>
+  </objectTemplate>
+
+</conversionRules>

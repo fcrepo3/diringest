@@ -1,25 +1,256 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <METS:mets xmlns:METS="http://www.loc.gov/METS/"
            xmlns:xlink="http://www.w3.org/1999/xlink">
-  <METS:dmdSec ID="ABC">
+  <METS:dmdSec ID="DC">
     <METS:mdWrap MDTYPE="OTHER">
       <METS:xmlData>
-        <myns:someRootElement xmlns:myns="urn:example:myns">
-          <myns:someInnerElement someInnerAttribute="true">some text</myns:someInnerElement>
-        </myns:someRootElement>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+          <dc:title>My Documents Folder</dc:title>
+          <dc:creator>Chris</dc:creator>
+          <dc:subject>music</dc:subject>
+          <dc:subject>school</dc:subject>
+          <dc:description>This folder contains my music and school stuff.</dc:description>
+        </oai_dc:dc>
       </METS:xmlData>
     </METS:mdWrap>
   </METS:dmdSec>
   <METS:fileSec>
     <METS:fileGrp>
+      <METS:file ID="MUSIC_FOLDER_DC" MIMETYPE="text/xml">
+        <METS:FContent>
+          <METS:xmlData>
+            <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+              <dc:title>Music Folder</dc:title>
+              <dc:creator>Chris</dc:creator>
+              <dc:subject>music</dc:subject>
+              <dc:description>This folder contains my music files.</dc:description>
+            </oai_dc:dc>
+          </METS:xmlData>
+        </METS:FContent>
+      </METS:file>
+    </METS:fileGrp>
+    <METS:fileGrp>
       <METS:fileGrp>
-        <METS:file ID="FILE-01" MIMETYPE="text/plain">
-          <METS:FLocat LOCTYPE="URL" xlink:href="file:/content/readme.txt"/>
+        <METS:file ID="DC3000" MIMETYPE="audio/mpeg">
+          <METS:FLocat LOCTYPE="URL" xlink:href="file:///My Documents/Music/08_ThieveryCorporation_DC3000.mp3"/>
         </METS:file>
-        <METS:file ID="FILE-01-META" MIMETYPE="text/xml">
+        <METS:file ID="DC3000_DC" MIMETYPE="text/xml">
           <METS:FContent>
             <METS:xmlData>
-              <emptydoc/>
+              <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+                <dc:title>DC 3000</dc:title>
+                <dc:creator>Thievery Corporation</dc:creator>
+                <dc:subject>music</dc:subject>
+                <dc:subject>ambient</dc:subject>
+                <dc:description>A 4min, 23sec track from the The WIRED DC</dc:description>
+                <dc:rights>Creative Commons Sampling Plus License</dc:rights>
+              </oai_dc:dc>
+            </METS:xmlData>
+          </METS:FContent>
+        </METS:file>
+        <METS:file ID="DC3000_LICENSE" MIMETYPE="application/rdf+xml">
+          <METS:FContent>
+            <METS:xmlData>
+              <rdf:RDF xmlns="http://web.resource.org/cc/"
+                       xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <License rdf:about="http://creativecommons.org/licenses/sampling+/1.0/">
+                  <permits rdf:resource="http://web.resource.org/cc/Reproduction" />
+                  <requires rdf:resource="http://web.resource.org/cc/Attribution" />
+                  <requires rdf:resource="http://web.resource.org/cc/Notice" />
+                  <permits rdf:resource="http://web.resource.org/cc/DerivativeWorks" /> 
+                  <permits rdf:resource="http://web.resource.org/cc/Sharing" /> 
+                </License>
+              </rdf:RDF>
+            </METS:xmlData>
+          </METS:FContent>
+        </METS:file>
+      </METS:fileGrp>
+    </METS:fileGrp>
+    <METS:fileGrp>
+      <METS:file ID="MINE_FOLDER_DC" MIMETYPE="text/xml">
+        <METS:FContent>
+          <METS:xmlData>
+            <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+              <dc:title>Mine Folder</dc:title>
+              <dc:creator>Chris</dc:creator>
+              <dc:subject>music</dc:subject>
+              <dc:description>Contains in-progress files for my album.</dc:description>
+            </oai_dc:dc>
+          </METS:xmlData>
+        </METS:FContent>
+      </METS:file>
+    </METS:fileGrp>
+    <METS:fileGrp>
+      <METS:fileGrp>
+        <METS:file ID="MYALBUMCOVER" MIMETYPE="image/jpeg">
+          <METS:FLocat LOCTYPE="URL" xlink:href="file:///My Documents/Music/Mine/MyAlbumCover.jpg"/>
+        </METS:file>
+        <METS:file ID="MYALBUMCOVER_DC" MIMETYPE="text/xml">
+          <METS:FContent>
+            <METS:xmlData>
+              <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+                <dc:title>My Album Cover</dc:title>
+                <dc:creator>Chris</dc:creator>
+                <dc:subject>music</dc:subject>
+                <dc:subject>art</dc:subject>
+                <dc:description>The cover art for my album</dc:description>
+                <dc:rights>Creative Commons Custom License</dc:rights>
+              </oai_dc:dc>
+            </METS:xmlData>
+          </METS:FContent>
+        </METS:file>
+        <METS:file ID="MYALBUMCOVER_LICENSE" MIMETYPE="application/rdf+xml">
+          <METS:FContent>
+            <METS:xmlData>
+              <rdf:RDF xmlns="http://web.resource.org/cc/"
+                       xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <License rdf:about="http://creativecommons.org/licenses/by/2.0/">
+                  <permits rdf:resource="http://web.resource.org/cc/Reproduction" />
+                  <permits rdf:resource="http://web.resource.org/cc/Distribution" />
+                  <requires rdf:resource="http://web.resource.org/cc/Notice" />
+                  <requires rdf:resource="http://web.resource.org/cc/Attribution" />
+                  <permits rdf:resource="http://web.resource.org/cc/DerivativeWorks" />
+                </License>
+              </rdf:RDF>
+            </METS:xmlData>
+          </METS:FContent>
+        </METS:file>
+      </METS:fileGrp>
+    </METS:fileGrp>
+    <METS:fileGrp>
+      <METS:fileGrp>
+        <METS:file ID="MYALBUMLYRICS" MIMETYPE="text/plain">
+          <METS:FLocat LOCTYPE="URL" xlink:href="file:///My Documents/Music/Mine/MyAlbumLyrics.txt"/>
+        </METS:file>
+        <METS:file ID="MYALBUMLYRICS_DC" MIMETYPE="text/xml">
+          <METS:FContent>
+            <METS:xmlData>
+              <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+                <dc:title>My Album Lyrics</dc:title>
+                <dc:creator>Chris</dc:creator>
+                <dc:subject>music</dc:subject>
+                <dc:subject>lyrics</dc:subject>
+                <dc:description>The lyrics for my album</dc:description>
+                <dc:rights>Creative Commons Custom License</dc:rights>
+              </oai_dc:dc>
+            </METS:xmlData>
+          </METS:FContent>
+        </METS:file>
+        <METS:file ID="MYALBUMLYRICS_LICENSE" MIMETYPE="application/rdf+xml">
+          <METS:FContent>
+            <METS:xmlData>
+              <rdf:RDF xmlns="http://web.resource.org/cc/"
+                       xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <License rdf:about="http://creativecommons.org/licenses/by/2.0/">
+                  <permits rdf:resource="http://web.resource.org/cc/Reproduction" />
+                  <permits rdf:resource="http://web.resource.org/cc/Distribution" />
+                  <requires rdf:resource="http://web.resource.org/cc/Notice" />
+                  <requires rdf:resource="http://web.resource.org/cc/Attribution" />
+                  <permits rdf:resource="http://web.resource.org/cc/DerivativeWorks" />
+                </License>
+              </rdf:RDF>
+            </METS:xmlData>
+          </METS:FContent>
+        </METS:file>
+      </METS:fileGrp>
+    </METS:fileGrp>
+    <METS:fileGrp>
+      <METS:file ID="SCHOOL_FOLDER_DC" MIMETYPE="text/xml">
+        <METS:FContent>
+          <METS:xmlData>
+            <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+              <dc:title>School Folder</dc:title>
+              <dc:creator>Chris</dc:creator>
+              <dc:subject>school</dc:subject>
+              <dc:description>This folder contains my school files.</dc:description>
+            </oai_dc:dc>
+          </METS:xmlData>
+        </METS:FContent>
+      </METS:file>
+    </METS:fileGrp>
+    <METS:fileGrp>
+      <METS:fileGrp>
+        <METS:file ID="SCHEDULE" MIMETYPE="application/msexcel">
+          <METS:FLocat LOCTYPE="URL" xlink:href="file:///My Documents/School/Schedule.xls"/>
+        </METS:file>
+        <METS:file ID="SCHEDULE_DC" MIMETYPE="text/xml">
+          <METS:FContent>
+            <METS:xmlData>
+              <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+                <dc:title>My School Schedule</dc:title>
+                <dc:creator>Chris</dc:creator>
+                <dc:subject>school</dc:subject>
+                <dc:subject>schedule</dc:subject>
+                <dc:description>What classes I have, and when</dc:description>
+                <dc:rights>Creative Commons Custom License</dc:rights>
+              </oai_dc:dc>
+            </METS:xmlData>
+          </METS:FContent>
+        </METS:file>
+        <METS:file ID="SCHEDULE_LICENSE" MIMETYPE="application/rdf+xml">
+          <METS:FContent>
+            <METS:xmlData>
+              <rdf:RDF xmlns="http://web.resource.org/cc/"
+                       xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <License rdf:about="http://creativecommons.org/licenses/by/2.0/">
+                  <permits rdf:resource="http://web.resource.org/cc/Reproduction" />
+                  <permits rdf:resource="http://web.resource.org/cc/Distribution" />
+                  <requires rdf:resource="http://web.resource.org/cc/Notice" />
+                  <requires rdf:resource="http://web.resource.org/cc/Attribution" />
+                  <permits rdf:resource="http://web.resource.org/cc/DerivativeWorks" />
+                </License>
+              </rdf:RDF>
+            </METS:xmlData>
+          </METS:FContent>
+        </METS:file>
+      </METS:fileGrp>
+    </METS:fileGrp>
+    <METS:fileGrp>
+      <METS:file ID="PAPERS_FOLDER_DC" MIMETYPE="text/xml">
+        <METS:FContent>
+          <METS:xmlData>
+            <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+              <dc:title>Papers Folder</dc:title>
+              <dc:creator>Chris</dc:creator>
+              <dc:subject>school</dc:subject>
+              <dc:description>This folder contains my papers for school.</dc:description>
+            </oai_dc:dc>
+          </METS:xmlData>
+        </METS:FContent>
+      </METS:file>
+    </METS:fileGrp>
+    <METS:fileGrp>
+      <METS:fileGrp>
+        <METS:file ID="FAHRENHEIT451" MIMETYPE="application/msword">
+          <METS:FLocat LOCTYPE="URL" xlink:href="file:///My Documents/School/Papers/Fahrenheit451.doc"/>
+        </METS:file>
+        <METS:file ID="FAHRENHEIT451_DC" MIMETYPE="text/xml">
+          <METS:FContent>
+            <METS:xmlData>
+              <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+                <dc:title>Fahrenheit 451 Book Report</dc:title>
+                <dc:creator>Chris</dc:creator>
+                <dc:subject>school</dc:subject>
+                <dc:subject>book report</dc:subject>
+                <dc:description>A book report I wrote for Mr. Rogers' class.</dc:description>
+                <dc:rights>Creative Commons Custom License</dc:rights>
+              </oai_dc:dc>
+            </METS:xmlData>
+          </METS:FContent>
+        </METS:file>
+        <METS:file ID="FAHRENHEIT451_LICENSE" MIMETYPE="application/rdf+xml">
+          <METS:FContent>
+            <METS:xmlData>
+              <rdf:RDF xmlns="http://web.resource.org/cc/"
+                       xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <License rdf:about="http://creativecommons.org/licenses/by/2.0/">
+                  <permits rdf:resource="http://web.resource.org/cc/Reproduction" />
+                  <permits rdf:resource="http://web.resource.org/cc/Distribution" />
+                  <requires rdf:resource="http://web.resource.org/cc/Notice" />
+                  <requires rdf:resource="http://web.resource.org/cc/Attribution" />
+                  <permits rdf:resource="http://web.resource.org/cc/DerivativeWorks" />
+                </License>
+              </rdf:RDF>
             </METS:xmlData>
           </METS:FContent>
         </METS:file>
@@ -27,13 +258,80 @@
     </METS:fileGrp>
   </METS:fileSec>
   <METS:structMap>
-    <METS:div LABEL="Sample Three Outer Object" TYPE="folderObject" DMDID="ABC">
-      <METS:div LABEL="Sample Three Inner Object" TYPE="dataObject">
-        <METS:div LABEL="Inner Object Datastream One" TYPE="readmeFile">
-          <METS:fptr FILEID="FILE-01"/>
+    <METS:div LABEL="My Documents" TYPE="folder" DMDID="DC">
+      <METS:div LABEL="Music" TYPE="folder">
+        <METS:div LABEL="Dublin Core" TYPE="dc">
+          <METS:fptr FILEID="MUSIC_FOLDER_DC"/>
         </METS:div>
-        <METS:div LABEL="Inner Object Datastream Three" TYPE="simpleMetadata">
-          <METS:fptr FILEID="FILE-01-META"/>
+        <METS:div LABEL="DC 3000 by Thievery Corporation" TYPE="file">
+          <METS:div LABEL="Content" TYPE="content">
+            <METS:fptr FILEID="DC3000"/>
+          </METS:div>
+          <METS:div LABEL="Dublin Core" TYPE="dc">
+            <METS:fptr FILEID="DC3000_DC"/>
+          </METS:div>
+          <METS:div LABEL="License" TYPE="license">
+            <METS:fptr FILEID="DC3000_LICENSE"/>
+          </METS:div>
+        </METS:div>
+        <METS:div LABEL="Mine" TYPE="folder">
+          <METS:div LABEL="Dublin Core" TYPE="dc">
+            <METS:fptr FILEID="MINE_FOLDER_DC"/>
+          </METS:div>
+          <METS:div LABEL="My Album Cover" TYPE="file">
+            <METS:div LABEL="Content" TYPE="content">
+              <METS:fptr FILEID="MYALBUMCOVER"/>
+            </METS:div>
+            <METS:div LABEL="Dublin Core" TYPE="dc">
+              <METS:fptr FILEID="MYALBUMCOVER_DC"/>
+            </METS:div>
+            <METS:div LABEL="License" TYPE="license">
+              <METS:fptr FILEID="MYALBUMCOVER_LICENSE"/>
+            </METS:div>
+          </METS:div>
+          <METS:div LABEL="My Album Lyrics" TYPE="file">
+            <METS:div LABEL="Content" TYPE="content">
+              <METS:fptr FILEID="MYALBUMLYRICS"/>
+            </METS:div>
+            <METS:div LABEL="Dublin Core" TYPE="dc">
+              <METS:fptr FILEID="MYALBUMLYRICS_DC"/>
+            </METS:div>
+            <METS:div LABEL="License" TYPE="license">
+              <METS:fptr FILEID="MYALBUMLYRICS_LICENSE"/>
+            </METS:div>
+          </METS:div>
+        </METS:div>
+      </METS:div>
+      <METS:div LABEL="School" TYPE="folder">
+        <METS:div LABEL="Dublin Core" TYPE="dc">
+          <METS:fptr FILEID="SCHOOL_FOLDER_DC"/>
+        </METS:div>
+        <METS:div LABEL="Schedule" TYPE="file">
+          <METS:div LABEL="Content" TYPE="content">
+            <METS:fptr FILEID="SCHEDULE"/>
+          </METS:div>
+          <METS:div LABEL="Dublin Core" TYPE="dc">
+            <METS:fptr FILEID="SCHEDULE_DC"/>
+          </METS:div>
+          <METS:div LABEL="License" TYPE="license">
+            <METS:fptr FILEID="SCHEDULE_LICENSE"/>
+          </METS:div>
+        </METS:div>
+        <METS:div LABEL="Papers" TYPE="folder">
+          <METS:div LABEL="Dublin Core" TYPE="dc">
+            <METS:fptr FILEID="PAPERS_FOLDER_DC"/>
+          </METS:div>
+          <METS:div LABEL="Fahrenheit 451" TYPE="file">
+            <METS:div LABEL="Content" TYPE="content">
+              <METS:fptr FILEID="FAHRENHEIT451"/>
+            </METS:div>
+            <METS:div LABEL="Dublin Core" TYPE="dc">
+              <METS:fptr FILEID="FAHRENHEIT451_DC"/>
+            </METS:div>
+            <METS:div LABEL="License" TYPE="license">
+              <METS:fptr FILEID="FAHRENHEIT451_LICENSE"/>
+            </METS:div>
+          </METS:div>
         </METS:div>
       </METS:div>
     </METS:div>
