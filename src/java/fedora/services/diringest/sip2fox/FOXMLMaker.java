@@ -174,14 +174,21 @@ public class FOXMLMaker implements fedora.common.Constants {
     }
 
     private void serializeOtherInlineDatastreams(TreeNode node, PrintWriter out) throws IOException {
+        logger.info("Serializing inline datastreams for : " + node.getLabel());
         Iterator iter = node.getSIPContents().iterator();
         while (iter.hasNext()) {
             SIPContent content = (SIPContent) iter.next();
             if (content.wasInline()) {
                 String id = getID(content);
                 if (!id.equals("RELS-EXT")) {
+                    logger.info("Serializing inline datastream: " + id);
                     startDatastream(id, content, out);
                     out.println("      <xmlContent>");
+                    if (logger.isDebugEnabled()) {
+                        ByteArrayOutputStream outs = new ByteArrayOutputStream();
+                        StreamUtil.pipe(content.getInputStream(), outs);
+                        logger.debug(outs.toString("UTF-8"));
+                    }
                     printXML(content.getInputStream(), out);
                     out.println("      </xmlContent>");
                     endDatastream(out);
