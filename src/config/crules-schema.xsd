@@ -11,8 +11,11 @@
         <description xmlns="http://purl.org/dc/elements/1.1/">
           A conversion rules document starts with a root "conversionRules"
           element.  This element contains an optional "description"
-          element, followed by zero or more "datastreamTemplate" elements,
+          element, followed by zero or more "namespace" elements,
+          followed by zero or more "datastreamTemplate" elements,
           followed by zero or more "objectTemplate" elements.
+          
+          A "namespace" element must have an "alias" and a "uri" attribute.
 
           A "datastreamTemplate" element must have a "nodeType" attribute.
           The element also contains an optional "description" element,
@@ -25,7 +28,7 @@
           followed by zero or more "attribute" elements, followed by
           zero or more "relationship" elements.
 
-          A "relationship" element must have a "uri" attribute.  The element
+          A "relationship" element must have a "name" attribute.  The element
           also contains one ore more "target" elements.
 
           A "target" element must have a "kinType" element whose value is
@@ -35,6 +38,16 @@
         <start>
           <element name="conversionRules">
             <ref name="optionalDescriptionElement"/>
+            <zeroOrMore>
+              <element name="namespace">
+                <attribute name="alias">
+                  <text/>
+                </attribute>
+                <attribute name="uri">
+                  <text/>
+                </attribute>
+              </element>
+            </zeroOrMore>
             <zeroOrMore>
               <element name="datastreamTemplate">
                 <ref name="nodeTypeAttribute"/>
@@ -49,7 +62,7 @@
                 <ref name="zeroOrMoreAttributeElements"/>
                 <zeroOrMore>
                   <element name="relationship">
-                    <attribute name="uri">
+                    <attribute name="name">
                       <text/>
                     </attribute>
                     <oneOrMore>
@@ -102,9 +115,16 @@
     <xs:complexType>
       <xs:sequence>
         <xs:group ref="optionalDescriptionElement"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="namespace"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="datastreamTemplate"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="objectTemplate"/>
       </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="namespace">
+    <xs:complexType>
+      <xs:attribute name="alias" use="required"/>
+      <xs:attribute name="uri" use="required"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="datastreamTemplate">
@@ -131,7 +151,7 @@
       <xs:sequence>
         <xs:element maxOccurs="unbounded" ref="target"/>
       </xs:sequence>
-      <xs:attribute name="uri" use="required"/>
+      <xs:attribute name="name" use="required"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="target">
@@ -169,4 +189,4 @@
       <xs:attribute name="value" use="required"/>
     </xs:complexType>
   </xs:element>
-</xs:schema>
+</xs:schema>  

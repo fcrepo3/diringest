@@ -8,26 +8,34 @@ import org.apache.log4j.*;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 
+import fedora.common.*;
+
 public class ConversionRules extends DefaultHandler {
 
     private static final Logger logger =
             Logger.getLogger(ConversionRules.class.getName());
 
+    private Map m_namespaces;
     private Map m_oTemplates;
     private Map m_dTemplates;
 
     private String m_templateNodeType;
     private List m_attribs;
     private List m_relSpecs;
-    private URI m_relationshipURI;
+    private String m_relationshipName;
+    private String m_relationshipPrefix;
     private List m_targetSpecs;
 
-    public ConversionRules(Map dTemplates, Map oTemplates) {
+    public ConversionRules(Map namespaces, Map dTemplates, Map oTemplates) {
+        m_namespaces = new HashMap();
+        m_namespaces.put("rdf", Constants.RDF.uri);
         m_dTemplates = dTemplates;
         m_oTemplates = oTemplates;
     }
 
     public ConversionRules(InputStream xml) throws Exception {
+        m_namespaces = new HashMap();
+        m_namespaces.put("rdf", Constants.RDF.uri);
         m_oTemplates = new HashMap();
         m_dTemplates = new HashMap();
         SAXParserFactory spf = SAXParserFactory.newInstance();
@@ -38,8 +46,35 @@ public class ConversionRules extends DefaultHandler {
 
     public List getRelationships(TreeNode node) {
         List rels = new ArrayList();
-        // TODO: Actually populate these
+        // first, apply default template (*) if it exists
+        ObjectTemplate dt = getObjectTemplate("*");
+        if (dt != null) rels.addAll(getImpliedRels(node, dt.getRelSpecs().iterator()));
+        // then, apply exact template (matching type name) if it exists
+        if (node.getType() != null) {
+            ObjectTemplate et = getObjectTemplate(node.getType());
+            if (et != null) rels.addAll(getImpliedRels(node, et.getRelSpecs().iterator()));
+        }
         return rels;
+    }
+
+    private List getImpliedRels(TreeNode node, Iterator specIter) {
+        List rels = new ArrayList();
+        while (specIter.hasNext()) {
+            RelSpec spec = (RelSpec) specIter.next();
+            Iterator iter = spec.getTargetSpecs().iterator();
+            while (iter.hasNext()) {
+                List matches = ((TargetSpec) iter.next()).getMatches(node);
+                for (int i = 0; i < matches.size(); i++) {
+                    TreeNode target = (TreeNode) matches.get(i);
+                    rels.add(new Relationship(spec.getName(), spec.getPrefix(), target));
+                }
+            }
+        }
+        return rels;
+    }
+
+    public String getNamespaceURI(String alias) {
+        return (String) m_namespaces.get(alias);
     }
 
     public ObjectTemplate getObjectTemplate(String nodeType) {
@@ -50,10 +85,26 @@ public class ConversionRules extends DefaultHandler {
         return (DatastreamTemplate) m_dTemplates.get(nodeType);
     }
 
-    public void startElement(String uri, 
+    public void startElement(String uriPart, 
                              String localName, 
                              String qName, 
                              Attributes a) throws SAXException {
+        if (localName.equals("namespace")) {
+            String alias = a.getValue("alias");
+            String uri = a.getValue("uri");
+            if (alias == null || uri == null) {
+                throw new SAXException("'namespace' requires both an 'alias' and a 'uri' attribute.");
+            }
+            if (m_namespaces.containsKey(alias)) {
+                throw new SAXException("namespace alias '" + alias + "' was already declared");
+            }
+            try {
+                URI u = new URI(uri);
+            } catch (Exception e) {
+                throw new SAXException("Bad namespace uri: " + uri);
+            }
+            m_namespaces.put(alias, uri);
+        }
         if (localName.equals("objectTemplate")) {
             m_templateNodeType = a.getValue("", "nodeType");
             if (m_templateNodeType == null)
@@ -80,15 +131,29 @@ public class ConversionRules extends DefaultHandler {
             m_attribs.add(new Attribute(name, value));
         }
         if (localName.equals("relationship")) {
-            String uriString = a.getValue("", "uri");
-            if (uriString == null)
-                throw new SAXException("'relationship' requires a 'uri' attribute.");
-            try {
-                m_relationshipURI = new URI(uriString);
-            } catch (Exception e) {
-                throw new SAXException("'relationship' has bad 'uri' value: " + uriString);
+            m_relationshipName = a.getValue("", "name");
+            if (m_relationshipName == null) {
+                throw new SAXException("'relationship' requires a 'name' attribute.");
             }
-            logger.info("Parsing relspec: " + uriString);
+            String[] parts = m_relationshipName.split(":");
+            if (parts.length != 2) {
+                throw new SAXException("'relationship' name must have a single colon (:) delimiter: " + m_relationshipName);
+            }
+            if (parts[0].length() == 0) {
+                throw new SAXException("'relationship' name must start with an alpha character: " + m_relationshipName);
+            }
+            String uriPrefix = (String) m_namespaces.get(parts[0]);
+            if (uriPrefix == null) {
+                throw new SAXException("'relationship' name prefix does not match a declared namespace alias: " + parts[0]);
+            }
+            String fullURI = uriPrefix + parts[1];
+            try {
+                URI uri = new URI(fullURI);
+            } catch (Exception e) {
+                throw new SAXException("'relationship' name implies a bad uri: " + fullURI);
+            }
+            logger.info("Parsed relspec, fullURI = " + fullURI);
+            m_relationshipPrefix = parts[0];
             m_targetSpecs = new ArrayList();
         }
         if (localName.equals("target")) {
@@ -121,12 +186,16 @@ public class ConversionRules extends DefaultHandler {
                            String localName, 
                            String qName) {
         if (localName.equals("relationship")) {
-            m_relSpecs.add(new RelSpec(m_relationshipURI, m_targetSpecs));
+            m_relSpecs.add(new RelSpec(m_relationshipName, m_relationshipPrefix, m_targetSpecs));
         } else if (localName.equals("datastreamTemplate")) {
             m_dTemplates.put(m_templateNodeType, new DatastreamTemplate(m_templateNodeType, m_attribs));
         } else if (localName.equals("objectTemplate")) {
             m_oTemplates.put(m_templateNodeType, new ObjectTemplate(m_templateNodeType, m_attribs, m_relSpecs));
         }
+    }
+
+    public Map getNamespaceMap() {
+        return m_namespaces;
     }
 
     public Map getObjectTemplates() {
@@ -159,7 +228,7 @@ public class ConversionRules extends DefaultHandler {
             appendAttributes(t.getAttributes(), out);
             for (int i = 0; i < t.getRelSpecs().size(); i++) {
                 RelSpec r = (RelSpec) t.getRelSpecs().get(i);
-                out.append("  Assume relationship " + r.getURI().toString() + "\n");
+                out.append("  Assume relationship " + r.getName().toString() + "\n");
                 for (int j = 0; j < r.getTargetSpecs().size(); j++) {
                     TargetSpec ts = (TargetSpec) r.getTargetSpecs().get(j);
                     String nodeType = ts.getNodeType();

@@ -28,6 +28,7 @@ public abstract class SIP2FOX {
      * Main entry point.
      */
     public static void main(String[] args) {
+        System.out.println();
         if (args.length != 2) {
             System.err.println("ERROR: Two arguments required.");
             System.err.println();

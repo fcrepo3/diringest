@@ -1,20 +1,25 @@
 package fedora.services.diringest;
 
-import java.net.*;
 import java.util.*;
 
 public class RelSpec {
 
-    private URI m_uri;
+    private String m_name;
+    private String m_prefix;
     private List m_targetSpecs;
 
-    public RelSpec(URI uri, List targetSpecs) {
-        m_uri = uri;
+    public RelSpec(String name, String prefix, List targetSpecs) {
+        m_name = name;
+        m_prefix = prefix;
         m_targetSpecs = targetSpecs;
     }
 
-    public URI getURI() {
-        return m_uri;
+    public String getName() {
+        return m_name;
+    }
+
+    public String getPrefix() {
+        return m_prefix;
     }
 
     public List getTargetSpecs() {

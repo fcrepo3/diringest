@@ -2,7 +2,10 @@ package fedora.services.diringest;
 
 import java.io.*;
 import java.util.*;
+import javax.xml.parsers.*;
 import org.apache.log4j.*;
+import org.apache.xml.serialize.*;
+import org.w3c.dom.*;
 
 import fedora.common.*;
 import fedora.services.diringest.pidgen.*;
@@ -14,7 +17,7 @@ import fedora.services.diringest.pidgen.*;
 public class FOXMLMaker implements fedora.common.Constants {
 
     public static final String  OUTPUT_ENCODING         = "UTF-8";
-    public static final boolean INCLUDE_SCHEMA_LOCATION = false;
+    public static final boolean INCLUDE_SCHEMA_LOCATION = true;
 
     private static final Logger logger =
             Logger.getLogger(FOXMLMaker.class.getName());
@@ -95,7 +98,7 @@ public class FOXMLMaker implements fedora.common.Constants {
         serializeProperties(node, out);
         serializeRelationships(pid, node, out);
         serializeOtherInlineDatastreams(node, out);
-        serializeManagedDatastreams(node, out);
+        serializeManagedDatastreams(node, out, outStream);
         serializeFooter(out);
     }
 
@@ -123,6 +126,47 @@ public class FOXMLMaker implements fedora.common.Constants {
     }   
 
     private void serializeRelationships(PID pid, TreeNode node, PrintWriter out) {
+        List rels = m_rules.getRelationships(node);
+        // TODO: If they specified a RELS-EXT datastream in the SIP, 
+        //       add those here.  Currently the only data RELS-EXT will hold
+        //       is that which is inferred by the rules.
+        if (rels.size() > 0) {
+            startDatastream("RELS-EXT", "X", "A", "true", "text/xml", 
+                            "Relationship Metadata", out);
+            out.println("      <xmlContent>");
+            out.print(  "        <rdf:RDF xmlns:rdf=\"" + m_rules.getNamespaceURI("rdf") + "\"");
+            // determine which namespaces should be declared
+            Map toDeclare = new HashMap();
+            for (int i = 0; i < rels.size(); i++) {
+                String prefix = ((Relationship) rels.get(i)).getPrefix();
+                toDeclare.put(prefix, m_rules.getNamespaceURI(prefix));
+            }
+            // ... then declare them
+            Iterator iter = toDeclare.keySet().iterator();
+            while (iter.hasNext()) {
+                String prefix = (String) iter.next();
+                if (!prefix.equals("rdf")) {
+                    out.println();
+                    out.print("                 xmlns:" + prefix + "=\""
+                            + enc((String) toDeclare.get(prefix)) + "\"");
+                }
+            }
+            out.println(">");
+            out.println("          <rdf:Description rdf:about=\"" + pid.toString() + "\">");
+            for (int i = 0; i < rels.size(); i++) {
+                Relationship rel = (Relationship) rels.get(i);
+                String target = rel.getExternalTarget();
+                if (target == null) {
+                    target = ((PID) m_pidMap.get(rel.getTarget())).toString();
+                }
+                out.println("            <" + rel.getName() 
+                        + " rdf:resource=\"" + enc(target) + "\"/>");
+            }
+            out.println("          </rdf:Description>");
+            out.println("        </rdf:RDF>");
+            out.println("      </xmlContent>");
+            endDatastream(out);
+        }
     }
 
     private void serializeOtherInlineDatastreams(TreeNode node, PrintWriter out) throws IOException {
@@ -133,23 +177,41 @@ public class FOXMLMaker implements fedora.common.Constants {
                 String id = getID(content);
                 if (!id.equals("RELS-EXT")) {
                     startDatastream(id, content, out);
-                    out.println("      <xmlData>");
+                    out.println("      <xmlContent>");
                     printXML(content.getInputStream(), out);
-                    out.println("      </xmlData>");
+                    out.println("      </xmlContent>");
                     endDatastream(out);
                 }
             }
         }
     }
 
-    private void printXML(InputStream in, PrintWriter out) throws IOException {
+    private void printXML(InputStream in, PrintWriter writer) throws IOException {
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+            // first format it nicely
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            OutputFormat fmt = new OutputFormat("XML", "UTF-8", true);
+            fmt.setIndent(2);
+            fmt.setLineWidth(120);
+            fmt.setPreserveSpace(false);
+            fmt.setOmitXMLDeclaration(true);
+            fmt.setOmitDocumentType(true);
+            XMLSerializer ser = new XMLSerializer(out, fmt);
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true);
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(in);
+            ser.serialize(doc);
+            // ... then indent it
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(out.toByteArray()), "UTF-8"));
             String line = reader.readLine();
             while (line != null) {
-                out.println(line);
+                writer.println("        " + line);
                 line = reader.readLine();
             }
+        } catch (Exception e) {
+            logger.warn("Error formatting inline XML.", e);
+            throw new IOException("Unexpected error formatting inline XML.");
         } finally {
             in.close();
         }
@@ -164,6 +226,16 @@ public class FOXMLMaker implements fedora.common.Constants {
         String v = "true";
         String m = content.getMIMEType();
         String l = content.getLabel();
+        startDatastream(id, cg, st, v, m, l, out);
+    }
+
+    private void startDatastream(String id,
+                                 String cg,
+                                 String st,
+                                 String v,
+                                 String m,
+                                 String l,
+                                 PrintWriter out) {
         String labelInfo = "";
         if (l != null) {
             labelInfo = " LABEL=\"" + enc(l) + "\"";
@@ -182,11 +254,20 @@ public class FOXMLMaker implements fedora.common.Constants {
         out.println("  </datastream>");
     }
 
-    private void serializeManagedDatastreams(TreeNode node, PrintWriter out) {
+    private void serializeManagedDatastreams(TreeNode node, 
+                                             PrintWriter out,
+                                             OutputStream outStream) throws IOException {
         Iterator iter = node.getSIPContents().iterator();
         while (iter.hasNext()) {
             SIPContent content = (SIPContent) iter.next();
             if (!content.wasInline()) {
+                String id = getID(content);
+                startDatastream(id, content, out);
+                out.print("      <binaryContent>");
+                out.flush();
+                StreamUtil.base64Encode(content.getInputStream(), outStream);
+                out.println("</binaryContent>");
+                endDatastream(out);
             }
         }
     }

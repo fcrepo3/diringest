@@ -17,6 +17,9 @@
     parent | ancestor | sibling | child | descendant
   </description>
 
+  <!-- Note: can use any of the following, plus pre-defined 'rdf' alias -->
+  <namespace alias="sample" uri="http://example.org/example#"/>
+
   <datastreamTemplate nodeType="oaidc">
     <attribute name="id" value="DC"/>
   </datastreamTemplate>
@@ -25,7 +28,7 @@
     <description>
       Specifies a "contains" relationship between a "folder" and any child.
     </description>
-    <relationship uri="urn:example:contains">
+    <relationship name="sample:contains">
       <target kinType="child" nodeType="file"/>
     </relationship>
   </objectTemplate>
@@ -34,7 +37,7 @@
     <description>
       Specifies a "hasAncestor" relationship from any node to all ancestors.
     </description>
-    <relationship uri="urn:example:hasAncestor">
+    <relationship name="sample:hasAncestor">
       <target kinType="ancestor" nodeType="*"/>
     </relationship>
   </objectTemplate>
@@ -44,15 +47,15 @@
       Derives several work-related relationships from a tree containing 
       people and various corporate entities.
     </description>
-    <relationship uri="urn:example:supervises">
+    <relationship name="sample:supervises">
       <target kinType="child" nodeType="person"/>
     </relationship>
-    <relationship uri="urn:example:memberOf">
+    <relationship name="sample:memberOf">
       <target kinType="ancestor" nodeType="department"/>
       <target kinType="ancestor" nodeType="section"/>
       <target kinType="ancestor" nodeType="division"/>
     </relationship>
-    <relationship uri="urn:example:employeeOf">
+    <relationship name="sample:employeeOf">
       <target kinType="ancestor" nodeType="company"/>
     </relationship>
   </objectTemplate>
