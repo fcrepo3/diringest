@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  
+<conversionRules>
+
+  <description>
+    Sample conversion rules.
+
+
   A template applies to a particular node type in the structMap.
   A template specifies the relationships that should be inferred
   from the node of interest to other nodes in the hierarchy.
@@ -11,49 +15,35 @@
   The value of kinType is one of the following:
   
     parent | ancestor | sibling | child | descendant
--->
-<conversionRules>
+  </description>
 
   <datastreamTemplate nodeType="oaidc">
-    <id>DC</id>
+    <attribute name="id" value="DC"/>
   </datastreamTemplate>
 
-  <!-- 
-    This template specifies a "contains" relationship between
-    a "folder" div and any child "file" div. 
-  -->
   <objectTemplate nodeType="folder">
+    <description>
+      Specifies a "contains" relationship between a "folder" and any child.
+    </description>
     <relationship uri="urn:example:contains">
       <target kinType="child" nodeType="file"/>
     </relationship>
   </objectTemplate>
 
-  <!--
-    This template specifies a "hasAncestor" relationship between
-    any div and all of its ancestors, regardless of type.
-  -->
   <objectTemplate nodeType="*">
+    <description>
+      Specifies a "hasAncestor" relationship from any node to all ancestors.
+    </description>
     <relationship uri="urn:example:hasAncestor">
       <target kinType="ancestor" nodeType="*"/>
     </relationship>
   </objectTemplate>
   
-  <!--
-    This template derives several job-related relationships from 
-    a structMap that represents an org chart tree:
-    
-    company                
-      division
-        person
-        person
-        section
-          person
-          department
-            person
-              person
-              person
-  -->
   <objectTemplate nodeType="person">
+    <description>
+      Derives several work-related relationships from a tree containing 
+      people and various corporate entities.
+    </description>
     <relationship uri="urn:example:supervises">
       <target kinType="child" nodeType="person"/>
     </relationship>
