@@ -8,6 +8,8 @@ import org.apache.log4j.*;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 
+import fedora.services.diringest.common.*;
+
 /**
  * Parses a FOXML stream with base64Binary datastreams, converting them
  * to staged URL references.
@@ -50,9 +52,38 @@ public class StagingFOXMLParser extends DefaultHandler {
                              Attributes a) throws SAXException {
         if (qName.equals("xmlContent")) {
             m_xmlContentLevel++;
-        }
-        if (m_xmlContentLevel == 0 && qName.equals("binaryContent")) {
+        } else if (m_xmlContentLevel == 0 && qName.equals("binaryContent")) {
             m_inBinaryContent = true;
+        } else {
+            m_out.append("<" + qName);
+            for (int i = 0; i < a.getLength(); i++) {
+                m_out.append(" " + a.getQName(i) + "=\"" 
+                        + StreamUtil.xmlEncode(a.getValue(i)) + "\"");
+            }
+            m_out.append(">");
+        }
+    }
+
+    public void characters(char[] ch, int start, int length) throws SAXException {
+        if (m_inBinaryContent) {
+            // FIXME: Decode to temp file
+        } else {
+            m_out.append(ch, start, length);
+        }
+    }
+
+    public void endElement(String uri, 
+                           String localName, 
+                           String qName) throws SAXException {
+        if (qName.equals("xmlContent")) {
+            m_xmlContentLevel--;
+        } else if (m_xmlContentLevel == 0 && qName.equals("binaryContent")) {
+            // FIXME: Stage the content, add the URL to the list, and use it in xml
+            String url = "http://www.example.org/sdfsdf";
+            m_out.append("<contentLocation REF=\"" + url + "\" TYPE=\"URL\"/>\n");
+            m_inBinaryContent = false;
+        } else {
+            m_out.append("</" + qName + ">");
         }
     }
 

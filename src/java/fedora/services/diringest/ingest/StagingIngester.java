@@ -55,6 +55,8 @@ public class StagingIngester implements Ingester {
     private void doIngest(String fedoraUser, 
                           String fedoraPass,
                           String foxml) throws Exception {
+        System.out.println("Going to ingest:");
+        System.out.println(foxml);
         // TODO: Use some SOAP api stuff here
     }
 
