@@ -1,4 +1,4 @@
-package fedora.services.diringest;
+package fedora.services.diringest.sip2fox;
 
 import java.io.*;
 import java.net.*;
@@ -7,6 +7,8 @@ import javax.xml.parsers.*;
 import org.apache.log4j.*;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
+
+import fedora.services.diringest.common.*;
 
 public class METSReader extends DefaultHandler {
 

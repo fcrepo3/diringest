@@ -1,10 +1,10 @@
-package fedora.services.diringest;
+package fedora.services.diringest.sip2fox;
 
 import java.io.*;
 import org.apache.log4j.*;
 import org.apache.log4j.xml.*;
 
-import fedora.services.diringest.pidgen.*;
+import fedora.services.diringest.sip2fox.pidgen.*;
 
 /**
  * Command-line application for converting SIPs to FOXML files.

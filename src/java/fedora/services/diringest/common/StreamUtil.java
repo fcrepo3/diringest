@@ -1,4 +1,4 @@
-package fedora.services.diringest;
+package fedora.services.diringest.common;
 
 import java.io.*;
 

@@ -1,4 +1,4 @@
-package fedora.services.diringest;
+package fedora.services.diringest.sip2fox;
 
 import java.io.*;
 import java.util.*;
@@ -8,7 +8,8 @@ import org.apache.xml.serialize.*;
 import org.w3c.dom.*;
 
 import fedora.common.*;
-import fedora.services.diringest.pidgen.*;
+import fedora.services.diringest.common.*;
+import fedora.services.diringest.sip2fox.pidgen.*;
 
 /**
  * Makes a series of self-contained FOXML files given a tree,

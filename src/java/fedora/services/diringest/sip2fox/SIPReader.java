@@ -1,4 +1,4 @@
-package fedora.services.diringest;
+package fedora.services.diringest.sip2fox;
 
 /**
  * Provides access to the contents of a SIP.

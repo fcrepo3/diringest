@@ -1,11 +1,11 @@
-package fedora.services.diringest;
+package fedora.services.diringest.sip2fox;
 
 import java.io.*;
 import java.util.*;
 import java.util.zip.*;
 import org.apache.log4j.*;
 
-import fedora.services.diringest.pidgen.*;
+import fedora.services.diringest.sip2fox.pidgen.*;
 
 /**
  * Utility for converting METS-encoded SIPs to self-contained FOXML objects.

@@ -1,4 +1,4 @@
-package fedora.services.diringest;
+package fedora.services.diringest.sip2fox;
 
 public class Attribute {
 

@@ -1,4 +1,4 @@
-package fedora.services.diringest;
+package fedora.services.diringest.sip2fox;
 
 import java.io.*;
 import java.net.*;
