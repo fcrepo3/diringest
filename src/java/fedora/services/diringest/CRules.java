@@ -14,6 +14,7 @@ public class CRules extends DefaultHandler {
             Logger.getLogger(CRules.class.getName());
 
     private Map m_oTemplates;
+    private Map m_dTemplates;
 
     private String m_templateNodeType;
     private List m_relSpecs;
@@ -34,6 +35,10 @@ public class CRules extends DefaultHandler {
 
     public ObjectTemplate getObjectTemplate(String nodeType) {
         return (ObjectTemplate) m_oTemplates.get(nodeType);
+    }
+
+    public ObjectTemplate getDatastreamTemplate(String nodeType) {
+        return (DatastreamTemplate) m_dTemplates.get(nodeType);
     }
 
     public void startElement(String uri, 
@@ -99,8 +104,13 @@ public class CRules extends DefaultHandler {
         return m_oTemplates;
     }
 
+    public Map getDatastreamTemplates() {
+        return m_dTemplates;
+    }
+
     public String getDescription() {
         StringBuffer out = new StringBuffer();
+        out.append("Contains " + m_dTemplates.keySet().size() + " datastream templates.\n");
         out.append("Contains " + m_oTemplates.keySet().size() + " object templates.\n");
         Iterator iter = m_oTemplates.values().iterator();
         int tNum = 0;
