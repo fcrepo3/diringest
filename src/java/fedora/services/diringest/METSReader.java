@@ -206,24 +206,7 @@ public class METSReader extends DefaultHandler {
     }
 
     private String enc(String in) {
-        StringBuffer out = new StringBuffer();
-        for (int i = 0; i < in.length(); i++) {
-            char c = in.charAt(i);
-            if (c == '<') {
-                out.append("&gt;");
-            } else if (c == '>') {
-                out.append("&lt;");
-            } else if (c == '&') {
-                out.append("&amp;");
-            } else if (c == '"') {
-                out.append("&quot;");
-            } else if (c == '\'') {
-                out.append("&apos;");
-            } else {
-                out.append(c);
-            }
-        }
-        return out.toString();
+        return StreamUtil.xmlEncode(in);
     }
 
     public void endElement(String uri, 

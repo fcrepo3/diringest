@@ -11,4 +11,6 @@ public interface DataResolver {
      */
     public InputStream getData(String locatorType, String locator) throws IOException;
 
+    public void checkResolvability(String locatorType, String locator) throws Exception;
+
 }

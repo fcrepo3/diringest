@@ -38,4 +38,13 @@ public class FileBasedSIPContent implements SIPContent {
         return new FileInputStream(m_file);
     }
 
+    public void check() throws Exception {
+        if (!m_file.exists()) {
+            throw new IOException("File does not exist: " + m_file.getPath());
+        }
+        if (m_file.isDirectory()) {
+            throw new IOException("Not a file : " + m_file.getPath());
+        }
+    }
+
 }

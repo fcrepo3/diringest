@@ -23,6 +23,20 @@ public class FOXMLResult {
 
     /** Send the contents to a stream (don't close the stream when done). */
     public void dump(OutputStream out) throws IOException {
+        InputStream in = getStream();
+        try {
+            byte[] buf = new byte[4096];
+            int len;
+            while ( ( len = in.read( buf ) ) > 0 ) {
+                out.write( buf, 0, len );
+            }
+        } finally {
+            try {
+                in.close();
+            } catch (IOException e) {
+                System.err.println("WARNING: Could not close temporary foxml input stream.");
+            }
+        }
     }
 
     public PID getPID() {

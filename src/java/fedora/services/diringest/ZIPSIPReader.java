@@ -66,7 +66,27 @@ public class ZIPSIPReader implements SIPReader,
 
     /** Currently only supports locators beginning with "file:" */
     public InputStream getData(String locatorType, String locator) throws IOException {
-        throw new IOException("getData not implemented yet");
+        return m_file.getInputStream(getEntry(locator));
+    }
+
+    public void checkResolvability(String locatorType, String locator) throws Exception {
+        getEntry(locator);
+    }
+
+    private ZipEntry getEntry(String locator) throws IOException {
+        // remove leading file://\\/\/\ characters
+        if (!locator.startsWith("file:")) {
+            throw new IOException("Bad locator syntax: " + locator);
+        }
+        String path = locator.substring(5);
+        while (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+        ZipEntry entry = m_file.getEntry(path);
+        if (entry == null) {
+            throw new IOException("ZIP entry not found: " + path);
+        }
+        return entry;
     }
 
 }

@@ -26,7 +26,7 @@ public class Converter {
      *
      * @throws IOException If conversion failed for any reason.
      */
-    public FOXMLResult[] convert(File sipFile) throws Exception {
+    public FOXMLResult[] convert(ConversionRules rules, File sipFile) throws Exception {
         logger.info("Constructing tree from SIP");
         SIPReader reader = getSIPReader(sipFile);
         if (logger.isDebugEnabled()) {
@@ -34,12 +34,12 @@ public class Converter {
             reader.getRoot().print("", out);
             out.flush();
         }
-        logger.info("Constructing foxml from tree");
+        logger.info("Constructing foxml using pid generator, conversion rules, and tree");
         try {
             List resultList = new ArrayList();
-            FOXMLMaker maker = new FOXMLMaker(m_pidgen, reader.getRoot());
+            FOXMLMaker maker = new FOXMLMaker(m_pidgen, rules, reader.getRoot());
             while (maker.hasNext()) {
-                resultList.add(maker.makeNext());
+                resultList.add(maker.next());
             }
             return (FOXMLResult[]) resultList.toArray(new FOXMLResult[0]);
         } finally {

@@ -39,12 +39,23 @@ public abstract class SIP2FOX {
             long startTime = System.currentTimeMillis();
             logger.info("Initializing...");
             Converter c = new Converter(new TestPIDGenerator());
+            String homeDir = System.getProperty("sip2fox.home");
+            if (homeDir == null) {
+                System.out.println("ERROR: sip2fox.home property not set.");
+                System.exit(1);
+            }
+            File cRules = new File(new File(homeDir), "config/crules.xml");
+            if (!cRules.exists()) {
+                System.out.println("ERROR: Conversion rules not found at " + cRules.getPath());
+                System.exit(1);
+            }
+            ConversionRules rules = new ConversionRules(new FileInputStream(cRules));
             logger.info("Processing...");
-            FOXMLResult[] r = c.convert(new File(args[0]));
+            FOXMLResult[] r = c.convert(rules, new File(args[0]));
             logger.info("Saving results...");
             File dir = new File(args[1]);
             for (int i = 0; i < r.length; i++) {
-                File foxmlFile = new File(dir, r[i].getPID().toFilename());
+                File foxmlFile = new File(dir, r[i].getPID().toFilename() + ".xml");
                 if (i == 0) dir.mkdirs();
                 FileOutputStream outStream = new FileOutputStream(foxmlFile);
                 r[i].dump(outStream);

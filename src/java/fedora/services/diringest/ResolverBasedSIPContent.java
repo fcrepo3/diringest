@@ -44,4 +44,8 @@ public class ResolverBasedSIPContent implements SIPContent {
         return m_resolver.getData(m_locatorType, m_locator);
     }
 
+    public void check() throws Exception {
+        m_resolver.checkResolvability(m_locatorType, m_locator);
+    }
+
 }

@@ -2,6 +2,8 @@
 <project name="diringest" default="dist" basedir=".">
 	<loadproperties srcFile="build.properties"/>
 	<path id="all-jars.path">
+		<pathelement location="${lib.base64}"/>
+		<pathelement location="${lib.jrdf}"/>
 		<pathelement location="${lib.httpclient}"/>
 		<pathelement location="${lib.log4j}"/>
 		<pathelement location="${lib.xerces}"/>

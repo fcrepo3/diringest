@@ -18,4 +18,7 @@ public interface SIPContent {
 
     public InputStream getInputStream() throws IOException;
 
+    // do a basic check to see if the input stream can be retrieved
+    public void check() throws Exception;
+
 }
