@@ -25,7 +25,7 @@
            classpathref="all-jars.path"
            optimize="${optimize}" debug="${debug}"/>
   </target>
-  <target name="release" depends="sip2fox, diringest, doc">
+  <target name="release" depends="dist, doc">
   </target>
   <target name="dist" depends="sip2fox, diringest">
     <copy todir="dist">

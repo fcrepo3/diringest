@@ -3,7 +3,7 @@ Samples
 
 Each zip file in this directory is a sample SIP that can
 be converted to a set of FOXML files using the sip2fox 
-utility.
+utility (or the diringest service).
 
 one.zip
 -------
@@ -25,7 +25,8 @@ Output      : Two FOXML files, the first containing one inline datastream
 three.zip
 ---------
 Description : A SIP with several miscellaneous files of various
-              types.
+              types.  This SIP should be used in conjunction with
+              crules-sample-three.xml
 Contents    : METS.xml
               My Documents/Music/08_ThieveryCorporation_DC3000.mp3
               My Documents/Music/Mine/MyAlbumCover.jpg

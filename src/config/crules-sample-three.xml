@@ -17,7 +17,7 @@
 
   <datastreamTemplate nodeType="dc">
     <description>
-      Specifies that a datastream ID of "DC" for datastream divs with
+      Specifies a datastream ID of "DC" for datastream divs with
       TYPE="dc" in the METS StructMap.
     </description>
     <attribute name="id" value="DC"/>
