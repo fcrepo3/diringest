@@ -12,6 +12,6 @@ public interface TreeNode {
 
     public String getType();
     public String getLabel();
-    public List getDatastreams();
+    public List getSIPContents();
 
 }
