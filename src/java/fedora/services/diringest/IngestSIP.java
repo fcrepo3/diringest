@@ -1,6 +1,7 @@
 package fedora.services.diringest;
 
 import java.io.*;
+import java.net.*;
 import java.util.*;
 import javax.servlet.http.*;
 import javax.servlet.*;
@@ -10,6 +11,7 @@ import org.apache.log4j.*;
 
 import fedora.common.*;
 import fedora.services.diringest.common.*;
+import fedora.services.diringest.ingest.*;
 import fedora.services.diringest.sip2fox.*;
 import fedora.services.diringest.sip2fox.pidgen.*;
 
@@ -23,13 +25,16 @@ import fedora.services.diringest.sip2fox.pidgen.*;
  * This service will act on behalf of a user whose name/password is
  * configured.
  */
-public class IngestSIP extends HttpServlet {
+public class IngestSIP extends HttpServlet 
+                       implements DatastreamStage {
 
     private static final Logger logger =
             Logger.getLogger(IngestSIP.class.getName());
 
     private ConversionRules m_defaultRules;
     private Converter m_converter;
+    private String m_fedoraHost;
+    private int m_fedoraPort;
     private String m_fedoraUser;
     private String m_fedoraPass;
 
@@ -46,7 +51,8 @@ public class IngestSIP extends HttpServlet {
         File tempRulesFile = null;
         FOXMLResult[] results = null;
 		try {
-            logger.info("Entered doPost");
+
+            // Save the 'sip' and (optional) 'rules' streams as they come
             MultipartParser parser=new MultipartParser(request, 
                 Long.MAX_VALUE, true, null);
 			Part part = parser.readNextPart();
@@ -71,16 +77,39 @@ public class IngestSIP extends HttpServlet {
             } else {
                 rules = new ConversionRules(new FileInputStream(tempRulesFile));
             }
+
+            // Convert the SIP to a bunch of FOXML
             results = m_converter.convert(rules, 
                                           tempSIPFile, 
                                           m_fedoraUser, 
                                           m_fedoraPass);
-            // FIXME: Do ingest (StagingIngester)
-            PID[] pids = new PID[results.length];
-            for (int i = 0; i < results.length; i++) {
-                pids[i] = results[i].getPID();
+
+            // Ingest all the objects that resulted from the conversion
+            Ingester ingester = new StagingIngester(m_fedoraHost, 
+                                                    m_fedoraPort,
+                                                    this); // DatastreamStage
+            List ingestedPIDs = new ArrayList();
+            try {
+                for (int i = 0; i < results.length; i++) {
+                    ingester.ingest(m_fedoraUser, m_fedoraPass, results[i]);
+                    ingestedPIDs.add(results[i].getPID());
+                }
+            } catch (Exception e) {
+                // If anything goes wrong, back out (delete) any objects
+                // that were already created
+                logger.warn("Failed to ingest a FOXMLResult", e);
+                purgeAll(m_fedoraUser, m_fedoraPass, ingestedPIDs);
+                throw new IOException(e.getMessage());
             }
-            doSuccess(pids, response);
+            // At this point the ingest of the entire SIP was successful.
+
+
+            // TODO: Put some kind of hook here to notify a search/other
+            //       service and possibly pass data to it
+
+
+
+            doSuccess(ingestedPIDs, response);
 		} catch (Exception e) {
             // FIXME: Use log4j here
             e.printStackTrace();
@@ -97,6 +126,11 @@ public class IngestSIP extends HttpServlet {
         }
     }
 
+    private void purgeAll(String user, String pass, List pids) {
+        logger.info("Backing out (purging) " + pids.size() + " already-ingested objects.");
+        // FIXME: Actually implement this
+    }
+
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         response.setStatus(200);
@@ -111,16 +145,16 @@ public class IngestSIP extends HttpServlet {
         w.close();
 	}
 
-    public void doSuccess(PID[] pids, 
+    public void doSuccess(List pids, 
                           HttpServletResponse response) {
         try {
             response.setStatus(HttpServletResponse.SC_CREATED);
             response.setContentType("text/xml");
             PrintWriter w = response.getWriter();
             w.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-            w.println("<pidList>">
-            for (int i = 0; i < pids.length; i++) {
-                w.println("  <pid>" + pids[i].toString() + "</pid>");
+            w.println("<pidList>");
+            for (int i = 0; i < pids.size(); i++) {
+                w.println("  <pid>" + ((PID) pids.get(i)).toString() + "</pid>");
             }
             w.println("</pidList>");
             w.flush();
@@ -179,8 +213,8 @@ public class IngestSIP extends HttpServlet {
             props.load(propStream);
 
             // Get the required properties
-            String host = props.getProperty("fedora.host"); 
-            if (host == null) {
+            m_fedoraHost = props.getProperty("fedora.host"); 
+            if (m_fedoraHost == null) {
                 throw new IOException("Required property (fedora.host) not specified in /diringest.properties");
             }
             String port = props.getProperty("fedora.port"); 
@@ -200,14 +234,28 @@ public class IngestSIP extends HttpServlet {
             String pidNamespace = props.getProperty("pid.namespace");
 
             // Initialize the converter
+            m_fedoraPort = Integer.parseInt(port);
             m_converter = new Converter( 
                               new RemotePIDGenerator(pidNamespace, 
-                                                     host, 
-                                                     Integer.parseInt(port)));
+                                                     m_fedoraHost,
+                                                     m_fedoraPort));
         } catch (Exception e) {
             e.printStackTrace();
             throw new ServletException("Unable to initialize", e);
         }
+    }
+
+    //
+    // From DatastreamStage interface
+    //
+
+    public URL stageContent(InputStream content) throws IOException {
+        // FIXME: implement this
+        return null;
+    }
+
+    public void unStageContent(URL location) throws IOException {
+        // FIXME: implement this
     }
 
 }
