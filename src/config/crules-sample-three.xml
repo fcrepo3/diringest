@@ -48,7 +48,9 @@
       Specifies a "containsFile" relationship between folders and their 
       child files, and a "containsFolder" relationship between folders and
       their child folders.
+      Also specifies a content model of "Folder" for folders.
     </description>
+    <attribute name="contentModel" value="Folder"/>
     <relationship name="sample:containsFile">
       <target primitiveRel="tree:child" nodeType="file"/>
     </relationship>
@@ -67,4 +69,10 @@
     </relationship>
   </objectTemplate>
 
+  <objectTemplate nodeType="file">
+    <description>
+      Specifies a content model of "File" for files.
+    </description>
+    <attribute name="contentModel" value="File"/>
+  </objectTemplate>
 </conversionRules>

@@ -78,7 +78,7 @@ public class METSReader extends DefaultHandler {
             }
             m_currentLabel = a.getValue("", "LABEL");
             m_currentMIME = a.getValue("", "MIMETYPE");
-            logger.info("Started parsing dmdSec (ID = " + m_currentID + ")");
+            logger.info("Parsing dmdSec (ID = " + m_currentID + ")");
         } else if (m_currentID != null) {
             // Inside a dmdSec or file
             if (uri.equals(METS) && localName.equals("xmlData") && m_xmlData == null) {
@@ -87,7 +87,7 @@ public class METSReader extends DefaultHandler {
                     m_xmlDataFile = File.createTempFile("diringest-xmlData", null);
                     m_xmlDataFile.deleteOnExit();
                     m_xmlData = new OutputStreamWriter(new FileOutputStream(m_xmlDataFile), "UTF-8");
-                    logger.info("Started buffering xmlData for " + m_currentID + " to file: " + m_xmlDataFile.getPath());
+                    logger.debug("Started buffering xmlData for " + m_currentID + " to file: " + m_xmlDataFile.getPath());
                 } catch (Exception e) {
                     String msg = "Unable to create temporary file for xmlData";
                     logger.warn(msg, e);
@@ -95,7 +95,7 @@ public class METSReader extends DefaultHandler {
                 }
             } else if (uri.equals(METS) && localName.equals("FLocat")) {
                 m_currentLocator = a.getValue(XLINK, "href");
-                logger.info("Parsing FLocat with xlink:href = " + m_currentLocator);
+                logger.debug("Parsing FLocat with xlink:href = " + m_currentLocator);
                 if (m_currentLocator == null) {
                     throw new SAXException("FLocat element must have an xlink:href attribute");
                 }
@@ -198,7 +198,7 @@ public class METSReader extends DefaultHandler {
     }
 
     public void startPrefixMapping(String prefix, String uri) {
-        logger.info("Started prefix mapping: " + prefix + " => " + uri);
+        logger.debug("Started prefix mapping: " + prefix + " => " + uri);
         m_prefixMap.put(prefix, uri);
         if (m_xmlData != null) {
             m_prefixList.add(prefix);
@@ -206,7 +206,7 @@ public class METSReader extends DefaultHandler {
     }
 
     public void endPrefixMapping(String prefix) {
-        logger.info("Finished prefix mapping: " + prefix);
+        logger.debug("Finished prefix mapping: " + prefix);
         m_prefixMap.remove(prefix);
     }
 
@@ -218,7 +218,7 @@ public class METSReader extends DefaultHandler {
                            String localName, 
                            String qName) throws SAXException {
         if (uri.equals(METS) && localName.equals("dmdSec") && m_currentID != null) {
-            logger.info("Finished parsing dmdSec (ID = " + m_currentID + ")");
+            logger.debug("Finished parsing dmdSec (ID = " + m_currentID + ")");
             if (m_xmlDataFile == null) {
                 throw new SAXException("dmdSec element must contain xmlData");
             }
@@ -239,7 +239,7 @@ public class METSReader extends DefaultHandler {
                     logger.warn(msg, e);
                     throw new SAXException(msg);
                 }
-                logger.info("Finished buffering xmlData for " + m_currentID);
+                logger.debug("Finished buffering xmlData for " + m_currentID);
                 m_xmlData = null;
             } else if (m_xmlData != null) {
                 // inside xmlData
@@ -252,7 +252,7 @@ public class METSReader extends DefaultHandler {
                 }
             } else if (uri.equals(METS) && localName.equals("file")) {
                 // ending a file, could have been xmlData or FLocat
-                logger.info("Finished parsing file (ID = " + m_currentID + ")");
+                logger.debug("Finished parsing file (ID = " + m_currentID + ")");
                 if (m_xmlDataFile == null) {
                     // it was a FLocat
                     if (m_currentLocator == null) {

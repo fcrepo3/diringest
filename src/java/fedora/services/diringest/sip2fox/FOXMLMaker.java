@@ -174,14 +174,14 @@ public class FOXMLMaker implements fedora.common.Constants {
     }
 
     private void serializeOtherInlineDatastreams(TreeNode node, PrintWriter out) throws IOException {
-        logger.info("Serializing inline datastreams for : " + node.getLabel());
+        logger.debug("Serializing inline datastreams for : " + node.getLabel());
         Iterator iter = node.getSIPContents().iterator();
         while (iter.hasNext()) {
             SIPContent content = (SIPContent) iter.next();
             if (content.wasInline()) {
                 String id = getID(content);
                 if (!id.equals("RELS-EXT")) {
-                    logger.info("Serializing inline datastream: " + id);
+                    logger.debug("Serializing inline datastream: " + id);
                     startDatastream(id, content, out);
                     out.println("      <xmlContent>");
                     if (logger.isDebugEnabled()) {
@@ -287,21 +287,37 @@ public class FOXMLMaker implements fedora.common.Constants {
         out.print("</digitalObject>");
     }
 
+    // Get the content model from the conversion rules, otherwise return null
     private String getContentModel(String objectType) {
-
-        // TODO: derive content model from rules, and document assumptions
-
-        if (objectType == null) return null;
-        return null;
+        Map attribs = m_rules.getObjectAttributes(objectType);
+        if (logger.isDebugEnabled()) {
+            logger.debug(attribString(objectType, attribs));
+        }
+        return (String) attribs.get("contentModel");
     }
 
+    // Get the id from the conversion rules, otherwise use the id from the SIP
     private String getID(SIPContent content) {
         String type = content.getType();
+        Map attribs = m_rules.getDatastreamAttributes(type);
+        if (logger.isDebugEnabled()) {
+            logger.debug(attribString(type, attribs));
+        }
+        String id = (String) attribs.get("id");
+        if (id == null) id = content.getID();
+        return id;
+    }
 
-        // TODO: derive datastream id from rules, and document assumptions
-
-        if (type == null) return content.getID();
-        return content.getID();
+    private String attribString(String type, Map attribs) {
+        StringBuffer out = new StringBuffer();
+        out.append("Attributes for " + type + ": ");
+        Iterator iter = attribs.keySet().iterator();
+        while (iter.hasNext()) {
+            String key = (String) iter.next();
+            String value = (String) attribs.get(key);
+            out.append("'" + key + "' = " + value + " ");
+        }
+        return out.toString();
     }
 
     private String enc(String in) {

@@ -59,6 +59,40 @@ public class ConversionRules extends DefaultHandler {
         return rels;
     }
 
+    public Map getObjectAttributes(String type) {
+        Map attribs = new HashMap();
+        // first, apply default template (*) if it exists
+        ObjectTemplate dt = getObjectTemplate("*");
+        if (dt != null) addAttributes(dt, attribs);
+        // then, apply exact template (matching type name) if it exists
+        if (type != null) {
+            ObjectTemplate et = getObjectTemplate(type);
+            if (et != null) addAttributes(et, attribs);
+        }
+        return attribs;
+    }
+
+    public Map getDatastreamAttributes(String type) {
+        Map attribs = new HashMap();
+        // first, apply default template (*) if it exists
+        DatastreamTemplate dt = getDatastreamTemplate("*");
+        if (dt != null) addAttributes(dt, attribs);
+        // then, apply exact template (matching type name) if it exists
+        if (type != null) {
+            DatastreamTemplate et = getDatastreamTemplate(type);
+            if (et != null) addAttributes(et, attribs);
+        }
+        return attribs;
+    }
+
+    private void addAttributes(Template t, Map attribs) {
+        Iterator iter = t.getAttributes().iterator();
+        while (iter.hasNext()) {
+            Attribute attrib = (Attribute) iter.next();
+            attribs.put(attrib.getName(), attrib.getValue());
+        }
+    }
+
     private List getImpliedRels(TreeNode node, Iterator specIter) {
         List rels = new ArrayList();
         while (specIter.hasNext()) {

@@ -48,7 +48,7 @@
             </METS:xmlData>
           </METS:FContent>
         </METS:file>
-        <METS:file ID="DC3000_LICENSE" MIMETYPE="application/rdf+xml">
+        <METS:file ID="DC3000_LICENSE" MIMETYPE="text/xml">
           <METS:FContent>
             <METS:xmlData>
               <rdf:RDF xmlns="http://web.resource.org/cc/"
@@ -99,7 +99,7 @@
             </METS:xmlData>
           </METS:FContent>
         </METS:file>
-        <METS:file ID="MYALBUMCOVER_LICENSE" MIMETYPE="application/rdf+xml">
+        <METS:file ID="MYALBUMCOVER_LICENSE" MIMETYPE="text/xml">
           <METS:FContent>
             <METS:xmlData>
               <rdf:RDF xmlns="http://web.resource.org/cc/"
@@ -136,7 +136,7 @@
             </METS:xmlData>
           </METS:FContent>
         </METS:file>
-        <METS:file ID="MYALBUMLYRICS_LICENSE" MIMETYPE="application/rdf+xml">
+        <METS:file ID="MYALBUMLYRICS_LICENSE" MIMETYPE="text/xml">
           <METS:FContent>
             <METS:xmlData>
               <rdf:RDF xmlns="http://web.resource.org/cc/"
@@ -187,7 +187,7 @@
             </METS:xmlData>
           </METS:FContent>
         </METS:file>
-        <METS:file ID="SCHEDULE_LICENSE" MIMETYPE="application/rdf+xml">
+        <METS:file ID="SCHEDULE_LICENSE" MIMETYPE="text/xml">
           <METS:FContent>
             <METS:xmlData>
               <rdf:RDF xmlns="http://web.resource.org/cc/"
@@ -238,7 +238,7 @@
             </METS:xmlData>
           </METS:FContent>
         </METS:file>
-        <METS:file ID="FAHRENHEIT451_LICENSE" MIMETYPE="application/rdf+xml">
+        <METS:file ID="FAHRENHEIT451_LICENSE" MIMETYPE="text/xml">
           <METS:FContent>
             <METS:xmlData>
               <rdf:RDF xmlns="http://web.resource.org/cc/"
