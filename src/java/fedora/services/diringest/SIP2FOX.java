@@ -20,6 +20,10 @@ public abstract class SIP2FOX {
             System.out.println("ERROR: sip2fox.home property not set.");
             System.exit(1);
         }
+        // tell commons-logging to use log4j
+        System.setProperty("org.apache.commons.logging.LogFactory", "org.apache.commons.logging.impl.Log4jFactory");
+        System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.Log4JLogger");
+        // log4j
         File log4jConfig = new File(new File(homeDir), "config/log4j.xml");
         DOMConfigurator.configure(log4jConfig.getPath());
     }

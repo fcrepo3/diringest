@@ -5,6 +5,7 @@
 		<pathelement location="${lib.base64}"/>
 		<pathelement location="${lib.jrdf}"/>
 		<pathelement location="${lib.httpclient}"/>
+		<pathelement location="${lib.logging}"/>
 		<pathelement location="${lib.log4j}"/>
 		<pathelement location="${lib.xerces}"/>
 		<pathelement location="${lib.xml-apis}"/>
