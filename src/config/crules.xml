@@ -2,50 +2,19 @@
 <conversionRules>
 
   <description>
-    Sample conversion rules.
+    A very simple rules file.
+    Draws parent/child relationships, and nothing else.
+    For a more complete rules file, see crules-sample-three.xml,
+    which can be used with the included sample SIP: "three.zip".
   </description>
 
-  <!-- Can declare any namespace alias except pre-defined 'rdf' or 'tree' -->
-  <namespace alias="sample" uri="http://example.org/example#"/>
-
-  <datastreamTemplate nodeType="oaidc">
-    <attribute name="id" value="DC"/>
-  </datastreamTemplate>
-
-  <objectTemplate nodeType="folder">
-    <description>
-      Specifies a "contains" relationship between a "folder" and any child.
-    </description>
-    <relationship name="sample:contains">
-      <target primitiveRel="tree:child" nodeType="file"/>
-    </relationship>
-  </objectTemplate>
-
   <objectTemplate nodeType="*">
-    <description>
-      Specifies a "tree:ancestor" relationship from any node to all ancestors.
-    </description>
-    <relationship name="tree:ancestor">
-      <target primitiveRel="tree:ancestor" nodeType="*"/>
+    <relationship name="tree:child">
+      <target primitiveRel="tree:child" nodeType="*"/>
+    </relationship>
+    <relationship name="tree:parent">
+      <target primitiveRel="tree:parent" nodeType="*"/>
     </relationship>
   </objectTemplate>
-  
-  <objectTemplate nodeType="person">
-    <description>
-      Derives several work-related relationships from a tree containing 
-      people and various corporate entities.
-    </description>
-    <relationship name="sample:supervises">
-      <target primitiveRel="tree:child" nodeType="person"/>
-    </relationship>
-    <relationship name="sample:memberOf">
-      <target primitiveRel="tree:ancestor" nodeType="department"/>
-      <target primitiveRel="tree:ancestor" nodeType="section"/>
-      <target primitiveRel="tree:ancestor" nodeType="division"/>
-    </relationship>
-    <relationship name="sample:employeeOf">
-      <target primitiveRel="tree:ancestor" nodeType="company"/>
-    </relationship>
-  </objectTemplate>
-    
+
 </conversionRules>
