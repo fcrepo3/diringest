@@ -26,6 +26,7 @@ public class ZIPSIPReader implements SIPReader,
     public ZIPSIPReader(ZipFile file) throws Exception {
         m_file = file;
         m_metsReader = new METSReader(m_file.getInputStream(getMetsEntry()), this);
+
     }
 
     private ZipEntry getMetsEntry() throws IOException {

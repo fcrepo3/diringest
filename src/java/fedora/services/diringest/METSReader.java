@@ -11,6 +11,7 @@ import org.xml.sax.helpers.*;
 public class METSReader extends DefaultHandler {
 
     public static final String METS = "http://www.loc.gov/METS/";
+    public static final String XLINK = "http://www.w3.org/1999/xlink";
     public static final String INLINE_XML_MIMETYPE = "text/xml";
 
     private static final Logger logger =
@@ -19,7 +20,6 @@ public class METSReader extends DefaultHandler {
     private TreeNode m_root;
     private DataResolver m_dataResolver;
 
-    private DivNode m_rootDiv;
     private DivNode m_currentDiv;
 
     private Map m_contentMap;
@@ -28,6 +28,9 @@ public class METSReader extends DefaultHandler {
     private List m_prefixList;
 
     private String m_currentID;
+    private String m_currentMIME;
+    private String m_currentLocator;
+    private String m_currentLocatorType;
     private File m_xmlDataFile;
     private List m_filesToDelete;
     private Writer m_xmlData;
@@ -42,13 +45,6 @@ public class METSReader extends DefaultHandler {
         spf.setNamespaceAware(true);
         SAXParser parser = spf.newSAXParser();
         parser.parse(xml, this);
-
-        // Now transform the div tree into the object tree (DivNode-to-TreeNode)
-        if (m_rootDiv == null) {
-            logger.warn("METS contained no div elements; no objects will be created.");
-        } else {
-
-        }
 
         /*
         Iterator iter = m_contentMap.values().iterator();
@@ -96,7 +92,7 @@ public class METSReader extends DefaultHandler {
             }
             logger.info("Started parsing dmdSec (ID = " + m_currentID + ")");
         } else if (m_currentID != null) {
-            // Inside a dmdSec
+            // Inside a dmdSec or file
             if (uri.equals(METS) && localName.equals("xmlData") && m_xmlData == null) {
                 // Starting an xmlData 
                 try {
@@ -109,6 +105,13 @@ public class METSReader extends DefaultHandler {
                     logger.warn(msg, e);
                     throw new SAXException(msg);
                 }
+            } else if (uri.equals(METS) && localName.equals("FLocat")) {
+                m_currentLocator = a.getValue(XLINK, "href");
+                logger.info("Parsing FLocat with xlink:href = " + m_currentLocator);
+                if (m_currentLocator == null) {
+                    throw new SAXException("FLocat element must have an xlink:href attribute");
+                }
+                m_currentLocatorType = a.getValue("", "LOCTYPE");
             } else if (m_xmlData != null) {
                 // inside xmlData
                 try {
@@ -119,14 +122,21 @@ public class METSReader extends DefaultHandler {
                     throw new SAXException(msg);
                 }
             }
+        } else if (uri.equals(METS) && localName.equals("file")) {
+            m_currentID = a.getValue("", "ID");
+            m_currentMIME = a.getValue("", "MIMETYPE");
+            if (m_currentID == null || m_currentMIME == null) {
+                throw new SAXException("file element must have ID and MIMETYPE attributes");
+            }
+            logger.info("Parsing file with ID = " + m_currentID);
         } else if (uri.equals(METS) && localName.equals("div")) {
             String label = a.getValue("", "LABEL");
             String type = a.getValue("", "TYPE");
             logger.info("Parsing div with TYPE = " + type + ", LABEL = " + label);
             // if has no parent, this is the root
             if (m_currentDiv == null) {
-                m_rootDiv = new DivNode(null, label, type);
-                m_currentDiv = m_rootDiv;
+                m_currentDiv = new DivNode(null, label, type);
+                m_root = m_currentDiv;
             } else {
                 // the div we're inside is the parent of this one
                 DivNode newDiv = new DivNode(m_currentDiv, label, type);
@@ -247,6 +257,32 @@ public class METSReader extends DefaultHandler {
                     String msg = "Unable to write element end for xmlData";
                     logger.warn(msg, e);
                     throw new SAXException(msg);
+                }
+            } else if (uri.equals(METS) && localName.equals("file")) {
+                // ending a file, could have been xmlData or FLocat
+                logger.info("Finished parsing file (ID = " + m_currentID + ")");
+                if (m_xmlDataFile == null) {
+                    // it was a FLocat
+                    if (m_currentLocator == null) {
+                        throw new SAXException("file element must contain either FLocat or xmlData");
+                    }
+                    SIPContent content = new ResolverBasedSIPContent(
+                                                 m_currentID, 
+                                                 false, 
+                                                 m_currentMIME, 
+                                                 m_dataResolver,
+                                                 m_currentLocatorType,
+                                                 m_currentLocator);
+                    m_contentMap.put(m_currentID, content);
+                    m_currentLocator = null;
+                    m_currentLocatorType = null;
+                    m_currentID = null;
+                } else {
+                    // it was an xmlData
+                    m_filesToDelete.add(m_xmlDataFile);
+                    m_contentMap.put(m_currentID, new FileBasedSIPContent(m_currentID, true, m_currentMIME, m_xmlDataFile));
+                    m_xmlDataFile = null;
+                    m_currentID = null;
                 }
             }
         } else if (uri.equals(METS) && localName.equals("div")) {

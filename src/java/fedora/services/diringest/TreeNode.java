@@ -1,5 +1,6 @@
 package fedora.services.diringest;
 
+import java.io.*;
 import java.util.*;
 
 /**
@@ -13,5 +14,7 @@ public interface TreeNode {
     public String getType();
     public String getLabel();
     public List getSIPContents();
+
+    public void print(String indent, PrintWriter out);
 
 }

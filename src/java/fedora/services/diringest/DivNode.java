@@ -1,5 +1,6 @@
 package fedora.services.diringest;
 
+import java.io.*;
 import java.util.*;
 
 /**
@@ -65,6 +66,24 @@ public class DivNode implements TreeNode {
             }
         }
         return m_sipContents;
+    }
+
+    public void print(String indent, PrintWriter out) {
+        out.println(indent + "o: " + m_type + " - " + m_label);
+        Iterator iter = getSIPContents().iterator();
+        while (iter.hasNext()) {
+            SIPContent content = (SIPContent) iter.next();
+            out.println(indent + "  d: " + content.getID() 
+                    + " - " + content.getType() 
+                    + " - " + content.getMIMEType() 
+                    + " - inline " + content.wasInline() 
+                    + " - " + content.getLabel());
+        }
+        iter = getChildren().iterator();
+        while (iter.hasNext()) {
+            TreeNode node = (TreeNode) iter.next();
+            node.print(indent + "  ", out);
+        }
     }
 
     //

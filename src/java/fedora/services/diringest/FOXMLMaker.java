@@ -6,7 +6,8 @@ import org.apache.log4j.*;
 import fedora.services.diringest.pidgen.*;
 
 /**
- * Makes a series of self-contained FOXML files from a SIPReader.
+ * Makes a series of self-contained FOXML files given a tree,
+ * a pid generator, and conversion rules.
  */
 public class FOXMLMaker {
 
