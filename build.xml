@@ -25,10 +25,16 @@
            classpathref="all-jars.path"
            optimize="${optimize}" debug="${debug}"/>
   </target>
-  <target name="dist" depends="sip2fox, diringest"/>
+  <target name="release" depends="sip2fox, diringest, doc">
+  </target>
+  <target name="dist" depends="sip2fox, diringest">
+    <copy todir="dist">
+      <fileset dir="src/dist"/>
+    </copy>
+  </target>
   <target name="diringest"
           depends="classes"
-          description="build the diringest distribution in dist/diringest">
+          description="build the diringest war file in dist">
     <copy todir="temp/webapp">
       <fileset dir="src/webapp"/>
     </copy>
@@ -43,8 +49,7 @@
         <exclude name="servlet-2.3.jar"/>
       </fileset>
     </copy>
-    <mkdir dir="dist/diringest"/>
-    <jar jarfile="dist/diringest/diringest.war" basedir="temp/webapp"/>
+    <jar jarfile="dist/diringest.war" basedir="temp/webapp"/>
   </target>
   <target name="sip2fox"
           depends="classes"
@@ -70,17 +75,17 @@
     <zip zipfile="dist/sip2fox/samples/one.zip" basedir="src/samples/one"/>
     <zip zipfile="dist/sip2fox/samples/two.zip" basedir="src/samples/two"/>
     <copy todir="dist/sip2fox/samples" file="src/samples/readme.txt"/>
-    <mkdir dir="dist/doc"/>
-    <copy todir="dist/sip2fox/doc">
-      <fileset dir="src/doc/sip2fox"/>
-    </copy>
     <copy todir="dist/sip2fox/config">
       <fileset dir="src/config"/>
     </copy>
   </target>
-  <target name="javadoc"
+  <target name="doc"
           depends="prep"
-		  description="Build the documentation in dist/javadoc">
+		  description="Build the documentation in dist/doc">
+    <mkdir dir="dist/doc"/>
+    <copy todir="dist/doc">
+      <fileset dir="src/doc"/>
+    </copy>
     <javadoc 
            classpathref="all-jars.path"
            sourcepath="src/java"
