@@ -74,6 +74,7 @@
     <mkdir dir="dist/sip2fox/samples"/>
     <zip zipfile="dist/sip2fox/samples/one.zip" basedir="src/samples/one"/>
     <zip zipfile="dist/sip2fox/samples/two.zip" basedir="src/samples/two"/>
+    <zip zipfile="dist/sip2fox/samples/three.zip" basedir="src/samples/three"/>
     <copy todir="dist/sip2fox/samples" file="src/samples/readme.txt"/>
     <copy todir="dist/sip2fox/config">
       <fileset dir="src/config"/>

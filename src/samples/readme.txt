@@ -1,6 +1,5 @@
----------------
-diringest Samples
----------------
+Samples
+=======
 
 Each zip file in this directory is a sample SIP that can
 be converted to a set of FOXML files using the sip2fox 
@@ -21,4 +20,16 @@ Contents    : METS.xml
               content/readme.txt 
 Output      : Two FOXML files, the first containing one inline datastream
               and the other containing two datastreams: one inline xml
-			  and the other, managed.
+              and the other, managed.
+
+three.zip
+---------
+Description : A SIP with several miscellaneous files of various
+              types.
+Contents    : METS.xml
+              My Documents/Music/08_ThieveryCorporation_DC3000.mp3
+              My Documents/Music/Mine/MyAlbumCover.jpg
+              My Documents/Music/Mine/MyAlbumLyrics.txt    
+              My Documents/School/Schedule.xls
+              My Documents/Papers/Fahrenheit451.doc          
+Output      : A FOXML file for each file and directory.
