@@ -6,16 +6,6 @@
 <head>
     <title>Fedora Directory Ingest Service</title> 
     <link rel="stylesheet" type="text/css" href="docstyle.css" />
-    <style type="text/css">
-        ol {
-            list-style: square outside none;
-        }
-        
-        ol ol {
-            list-style: disc outside none;
-            margin-bottom: 10px;
-        }
-    </style>
 </head>
 
 <body>
@@ -105,6 +95,10 @@ pid.namespace = demo
        below on specifying conversion rules</a>.
      </p>
      <p>
+       <em>Optional</em>: If desired, modify the logging configuration file
+       in this directory (log4j.xml).
+     </p>
+     <p>
        Finally, ensure that your Fedora server is running, and re-start Tomcat.
      </p>
   </div>
@@ -119,23 +113,93 @@ pid.namespace = demo
     <div class="code"><pre>
 http://localhost/diringest/ingestSIP
 </pre></div>
+  <p>
+    Hitting the above URL with your browser will present a simple
+    test form where you can upload a SIP file, an optional rules file
+    (if you want to use non-default conversion rules), and hit "Submit".
+    A successful submission will result in an XML file that contains a
+    list of the PIDs of the objects that were ingested.
+  </p>
+  <p>
+    The service accepts, via HTTP POST, the following parameters:
+    <ul>
+      <li> <em>sip</em> - The SIP file.  See 
+           <em><a href="#sip">Preparing a SIP</a></em> for format details.</li>
+      <li> <em>rules (optional)</em> - A custom conversion rules file.  See
+           <em><a href="#rules">Specifying Conversion Rules</a></em> for format details.</li>
+    </ul>
+  </p>
+  <p>
+    A successful response will return a 200 (OK) HTTP status code
+    and a simple XML file containing PIDs, such as the one below:
+  </p>
+    <div class="code"><pre>
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;pidList&gt;
+  &lt;pid&gt;demo:42&lt;/pid&gt;
+  &lt;pid&gt;demo:43&lt;/pid&gt;
+  &lt;pid&gt;demo:44&lt;/pid&gt;
+  &lt;pid&gt;demo:45&lt;/pid&gt;
+&lt;/pidList&gt;
+</pre></div>
 </div>
 
 <div class="sect">
   <h2><a name="sip2fox">4. Using the SIP2FOX Utility</a></h2>
   <p>
+    The "SIP2FOX" utility is useful for command-line testing of SIPs
+    and conversion rules.  It's included in the distribution's "sip2fox" directory.
+    To invoke it, change to that directory and type:
+  </p>
+    <div class="code"><pre>
+sip2fox sipFile.zip outputDir [fedoraHost fedoraPort fedoraUser fedoraPass [pidNamespace]]
+</pre></div>
+  <p>
+    If you only specify a SIP file and an output directory, the program will
+    use a test PID generator for creating the objects.  If you specify
+    Fedora server login information, that repository's PID generator will
+    be used instead.  To use a pid namespace other than the default for
+    a repository, specify it as the last parameter.
+  </p>
+  <p>
+    The SIP2FOX utility uses whatever rules reside in the config/crules.xml
+    when it runs.
   </p>
 </div>
 
 <div class="sect">
   <h2><a name="sip">5. Preparing a SIP</a></h2>
   <p>
+    A SIP file is a ZIP file containing metadata and content for a
+    set of to-be-created Fedora objects.
+  </p>
+  <p>
+    Sample SIP files and <a href="../sip2fox/samples/readme.txt">a readme.txt 
+    file with descriptions of each</a> are included in 
+    <a href="../sip2fox/samples/">the sip2fox/samples directory</a>.
+  </p>
+  <p>
+    TODO: Describe the format more completely here.
   </p>
 </div>
 
 <div class="sect">
   <h2><a name="rules">6. Specifying Conversion Rules</a></h2>
   <p>
+    A conversion rules file primarily tells the service (or sip2fox) how to
+    derive relationships from the hierarchical structure (the structMap) 
+    in the SIP.  It does this through the use of templates.
+  </p>
+  <p>
+    The <a href="../sip2fox/config/crules.xml">default crules.xml file</a>
+    illustrates the use of several templates.
+  </p>
+  <p>
+    The <a href="../sip2fox/config/crules-schema.xsd">Conversion Rules W3C XML Schema</a>
+    describes the expected syntax of this file.
+  </p>
+  <p>
+    TODO: Describe the format more completely here.
   </p>
 </div>
 

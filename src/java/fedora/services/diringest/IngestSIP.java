@@ -163,9 +163,10 @@ public class IngestSIP extends HttpServlet
             response.setStatus(200);
             response.setContentType("text/html");
             PrintWriter w = response.getWriter();
-            w.println("<html><body><h2>IngestSIP</h2><hr size=\"1\"/>");
+            w.println("<html><body><h2>IngestSIP Test Form</h2><hr size=\"1\"/>");
             w.println("<form method=\"POST\" enctype=\"multipart/form-data\">");
-            w.println("<input type=\"file\" size=\"20\" name=\"sip\"/><br/>");
+            w.println("SIP File <input type=\"file\" size=\"50\" name=\"sip\"/><br/>");
+            w.println("Custom Rules File (Optional) <input type=\"rules\" size=\"50\" name=\"rules\"/><br/>");
             w.println("<input type=\"submit\"/><br/>");
             w.println("</body></html>");
             w.flush();

@@ -3,18 +3,6 @@
 
   <description>
     Sample conversion rules.
-
-
-  A template applies to a particular node type in the structMap.
-  A template specifies the relationships that should be inferred
-  from the node of interest to other nodes in the hierarchy.
-
-  The value of nodeType is a string indicating a div TYPE.
-  If nodeType is "*", the template applies to all nodes.
-  
-  The value of primitiveRel is one of the following:
-  
-    tree:parent | tree:ancestor | tree:sibling | tree:child | tree:descendant
   </description>
 
   <!-- Can declare any namespace alias except pre-defined 'rdf' or 'tree' -->
