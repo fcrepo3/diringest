@@ -25,11 +25,16 @@ public class StagingFOXMLParser extends DefaultHandler {
 
     private StringBuffer m_out;
 
+    private int m_xmlContentLevel;
+    private boolean m_inBinaryContent;
+
     public StagingFOXMLParser(InputStream foxml, 
                               DatastreamStage stage,
                               List stagedURLs) throws Exception {
         m_stage = stage;
         m_stagedURLs = stagedURLs;
+        m_xmlContentLevel = 0;
+        m_inBinaryContent = false;
         m_out = new StringBuffer();
         m_out.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         SAXParserFactory spf = SAXParserFactory.newInstance();
@@ -37,6 +42,18 @@ public class StagingFOXMLParser extends DefaultHandler {
                                       // the identity transform simpler.
         SAXParser parser = spf.newSAXParser();
         parser.parse(foxml, this);
+    }
+
+    public void startElement(String uri, 
+                             String localName, 
+                             String qName, 
+                             Attributes a) throws SAXException {
+        if (qName.equals("xmlContent")) {
+            m_xmlContentLevel++;
+        }
+        if (m_xmlContentLevel == 0 && qName.equals("binaryContent")) {
+            m_inBinaryContent = true;
+        }
     }
 
     public String getFOXMLString() {
