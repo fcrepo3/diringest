@@ -36,7 +36,7 @@
             <li><a href="#installation">Installation</a>
               <ol>
                 <li> <a href="#prerequisites">Prerequisites</a></li>
-                <li> <a href="#configuration">Configuration</a></li>
+                <li> <a href="#setup">Setup</a></li>
               </ol>
             </li>
             <li><a href="#service">Using the Service</a></li>
@@ -51,7 +51,11 @@
 <div class="sect">
   <h2><a name="overview">1. Overview</a></h2>
   <p>
-     This service
+     This service constructs Fedora objects from Submission Information
+     Packages ("SIPs") and ingests those objects into a Fedora repository.
+     It is exposed as a REST-style web service that accepts input via
+     HTTP POST and (if successful) returns an XML document with the
+     list of PIDs of the ingested objects.
   </p>
 </div>
 
@@ -60,24 +64,61 @@
   <div class="subsect">
     <h3><a name="prerequisites">A. Prerequisites</a></h3>
     <p>
-       You should have a Fedora v2.0+ repository and a 
-       Servlet container that supports the Servlet API v2.3 or above.
+      <ul> 
+        <li> A running Fedora repository, version 2.0+.</li>
+        <li> A servlet container that supports the Servlet API v2.3+</li>
+      </ul>
     </p>
-    <h3><a name="configuration">B. Configuration</a></h3>
+    <h3><a name="setup">B. Setup</a></h3>
     <p>
-       The default configuration is included in the war file.
+       <em>Note: These instructions are written assuming you are using
+       Tomcat.  Webapp deployment may differ for your servlet container.</em>
+    </p>
+    <p>
+        First, copy the diringest.war file to the "webapps" directory
+        and re-start Tomcat.  The war file should be expanded into
+        "webapps/diringest". 
+    </p>
+    <p>
+        Edit the "WEB-INF/classes/diringest.properties" file, changing the
+        values to what is appropriate for your installation.
     </p>
     <div class="code"><pre>
+#
+# Required settings for remote Fedora repository.
+# These are used for the pid generation and ingest functions.
+#
 fedora.host = localhost
 fedora.port = 8080
+fedora.user = fedoraAdmin
+fedora.pass = fedoraAdmin
+
+#
+# Optional preferred namespace part for PIDs.
+# Comment this out to use the default from the target Fedora repository
+#
+pid.namespace = demo
 </pre></div>
+     <p>
+       <em>Optional</em>: If desired, modify the default conversion rules file 
+       in this directory (crules.xml).  See <a href="#rules">the section 
+       below on specifying conversion rules</a>.
+     </p>
+     <p>
+       Finally, ensure that your Fedora server is running, and re-start Tomcat.
+     </p>
   </div>
 </div>
 
 <div class="sect">
   <h2><a name="service">3. Using the Service</a></h2>
   <p>
+    Once installed, the service will be exposed from your servlet
+    container at "diringest/ingestSIP".  For example:
   </p>
+    <div class="code"><pre>
+http://localhost/diringest/ingestSIP
+</pre></div>
 </div>
 
 <div class="sect">
