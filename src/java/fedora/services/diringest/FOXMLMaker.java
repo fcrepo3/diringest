@@ -14,11 +14,11 @@ public class FOXMLMaker {
             Logger.getLogger(FOXMLMaker.class.getName());
 
     private PIDGenerator m_pidgen;
-    private SIPReader m_reader;
+    private TreeNode m_rootNode;
 
-    public FOXMLMaker(PIDGenerator pidgen, SIPReader reader) {
+    public FOXMLMaker(PIDGenerator pidgen, TreeNode rootNode) {
         m_pidgen = pidgen;
-        m_reader = reader;
+        m_rootNode = rootNode;
     }
 
     public boolean hasNext() {

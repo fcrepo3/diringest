@@ -1,40 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  A relMap specifies a set of templates to be applied to matching
-  "div" elements in a METS structMap.
   
-  Each template applies to a particular node type in the structMap.
+  A template applies to a particular node type in the structMap.
   A template specifies the relationships that should be inferred
   from the node of interest to other nodes in the hierarchy.
 
   The value of nodeType is a string indicating a div TYPE.
-  If nodeType is unspecified, the template applies to all nodes.
+  If nodeType is "*", the template applies to all nodes.
   
   The value of kinType is one of the following:
   
-    parent | ancestor | sibling | child | descendent
+    parent | ancestor | sibling | child | descendant
 -->
-<relMap>
+<conversionRules>
+
+  <datastreamTemplate nodeType="oaidc">
+    <id>DC</id>
+  </datastreamTemplate>
 
   <!-- 
     This template specifies a "contains" relationship between
     a "folder" div and any child "file" div. 
   -->
-  <template nodeType="folder">
+  <objectTemplate nodeType="folder">
     <relationship uri="urn:example:contains">
       <target kinType="child" nodeType="file"/>
     </relationship>
-  </template>
+  </objectTemplate>
 
   <!--
     This template specifies a "hasAncestor" relationship between
     any div and all of its ancestors, regardless of type.
   -->
-  <template>
+  <objectTemplate nodeType="*">
     <relationship uri="urn:example:hasAncestor">
-      <target kinType="ancestor"/>
+      <target kinType="ancestor" nodeType="*"/>
     </relationship>
-  </template>
+  </objectTemplate>
   
   <!--
     This template derives several job-related relationships from 
@@ -51,7 +53,7 @@
               person
               person
   -->
-  <template nodeType="person">
+  <objectTemplate nodeType="person">
     <relationship uri="urn:example:supervises">
       <target kinType="child" nodeType="person"/>
     </relationship>
@@ -63,6 +65,6 @@
     <relationship uri="urn:example:employeeOf">
       <target kinType="ancestor" nodeType="company"/>
     </relationship>
-  </template>
+  </objectTemplate>
     
-</relMap>
+</conversionRules>

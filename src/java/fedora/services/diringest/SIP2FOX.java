@@ -14,10 +14,7 @@ public abstract class SIP2FOX {
     private static final Logger logger = 
             Logger.getLogger(SIP2FOX.class.getName());
 
-    /**
-     * Main entry point.
-     */
-    public static void main(String[] args) {
+    public static void initLogging() {
         String homeDir = System.getProperty("sip2fox.home");
         if (homeDir == null) {
             System.out.println("ERROR: sip2fox.home property not set.");
@@ -25,12 +22,19 @@ public abstract class SIP2FOX {
         }
         File log4jConfig = new File(new File(homeDir), "config/log4j.xml");
         DOMConfigurator.configure(log4jConfig.getPath());
+    }
+
+    /**
+     * Main entry point.
+     */
+    public static void main(String[] args) {
         if (args.length != 2) {
             System.err.println("ERROR: Two arguments required.");
             System.err.println();
             System.err.println("Usage: sip2fox sipFile.zip outputDir");
             System.exit(1);
         }
+        initLogging();
         try {
             long startTime = System.currentTimeMillis();
             logger.info("Initializing...");

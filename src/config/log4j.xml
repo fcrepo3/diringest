@@ -8,12 +8,12 @@
     </layout>
   </appender>
 
-  <category name="fedora.diringest">
+  <category name="fedora.services.diringest">
 <!--
     <priority value="WARN" />
-    <priority value="INFO" />
--->
     <priority value="DEBUG" />
+-->
+    <priority value="INFO" />
 <!--    <appender-ref ref="STDOUT"/> -->
   </category>
 

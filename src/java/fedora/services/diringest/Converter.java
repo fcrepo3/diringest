@@ -22,22 +22,15 @@ public class Converter {
     }
 
     /**
-     * Convert the given SIP (a zip file) into a series of self-contained
-     * FOXML files.
+     * Convert the given SIP into a series of self-contained FOXML files.
      *
      * @throws IOException If conversion failed for any reason.
      */
-    public FOXMLResult[] convert(File zipFile) throws IOException {
-        if (!zipFile.exists()) {
-            throw new IOException("File not found: " + zipFile.getPath());
-        }
-        if (zipFile.isDirectory()) {
-            throw new IOException("Not a file: " + zipFile.getPath());
-        }
-        SIPReader reader = new SIPReader(new ZipFile(zipFile));
+    public FOXMLResult[] convert(File sipFile) throws IOException {
+        SIPReader reader = getSIPReader(sipFile);
         try {
             List resultList = new ArrayList();
-            FOXMLMaker maker = new FOXMLMaker(m_pidgen, reader);
+            FOXMLMaker maker = new FOXMLMaker(m_pidgen, reader.getRoot());
             while (maker.hasNext()) {
                 resultList.add(maker.makeNext());
             }
@@ -47,6 +40,15 @@ public class Converter {
         }
     }
 
-
+    // only supports zip-based sips for now
+    private SIPReader getSIPReader(File sipFile) throws IOException {
+        if (!sipFile.exists()) {
+            throw new IOException("File not found: " + sipFile.getPath());
+        }
+        if (sipFile.isDirectory()) {
+            throw new IOException("Not a file: " + sipFile.getPath());
+        }
+        return new ZIPSIPReader(new ZipFile(sipFile));
+    }
 
 }
