@@ -98,6 +98,11 @@
       </fileset>
     </javadoc>
   </target>
+  <target name="source"
+          description="build diringest-source.zip"
+          depends="clean">
+    <zip zipfile="diringest-source.zip" basedir="."/>
+  </target>
   <target name="prep"
           description="prepare for a build">
     <mkdir dir="temp"/>
@@ -108,5 +113,6 @@
           description="remove all build-generated stuff">
       <delete dir="temp"/>
       <delete dir="dist"/>
+      <delete file="diringest-source.zip"/>
   </target>
 </project>
