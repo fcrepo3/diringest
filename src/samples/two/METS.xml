@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<METS:mets xmlns:METS="http://www.loc.gov/METS/"
+           xmlns:xlink="http://www.w3.org/1999/xlink">
+  <METS:dmdSec ID="ABC">
+    <METS:mdWrap MDTYPE="OTHER">
+      <METS:xmlData>
+        <myns:someRootElement xmlns:myns="urn:example:myns">
+          <myns:someInnerElement someInnerAttribute="true">some text</myns:someInnerElement>
+        </myns:someRootElement>
+      </METS:xmlData>
+    </METS:mdWrap>
+  </METS:dmdSec>
+  <METS:fileSec>
+    <METS:fileGrp>
+      <METS:fileGrp>
+        <METS:file ID="FILE-01" MIMETYPE="text/plain">
+          <METS:FLocat LOCTYPE="URL" xlink:href="file:/content/readme.txt"/>
+        </METS:file>
+        <METS:file ID="FILE-01-META" MIMETYPE="text/xml">
+          <METS:FContent>
+            <METS:xmlData>
+              <emptydoc/>
+            </METS:xmlData>
+          </METS:FContent>
+        </METS:file>
+      </METS:fileGrp>
+    </METS:fileGrp>
+  </METS:fileSec>
+  <METS:structMap>
+    <METS:div LABEL="Sample Two Outer Object" TYPE="folderObject" DMDID="ABC">
+      <METS:div LABEL="Sample Two Inner Object" TYPE="dataObject">
+        <METS:div LABEL="Inner Object Datastream One" TYPE="readmeFile">
+          <METS:fptr FILEID="FILE-01"/>
+        </METS:div>
+        <METS:div LABEL="Inner Object Datastream Two" TYPE="simpleMetadata">
+          <METS:fptr FILEID="FILE-01-META"/>
+        </METS:div>
+      </METS:div>
+    </METS:div>
+  </METS:structMap>
+</METS:mets>

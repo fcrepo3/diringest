@@ -10,5 +10,15 @@ one.zip
 -------
 Description : A SIP with no binary data and one dmdSec,
               referenced from one div.
-Contents    : /METS.xml
+Contents    : METS.xml
 Output      : One FOXML file with one inline XML datastream.
+
+two.zip
+-------
+Description : A SIP with one dmdSec and two files, one internal
+              xml and the other a reference to a file in the SIP.
+Contents    : METS.xml
+              content/readme.txt 
+Output      : Two FOXML files, the first containing one inline datastream
+              and the other containing two datastreams: one inline xml
+			  and the other, managed.
