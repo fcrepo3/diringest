@@ -28,7 +28,9 @@ public class FOXMLMaker implements fedora.common.Constants {
 
     public FOXMLMaker(PIDGenerator pidgen, 
                       ConversionRules rules, 
-                      TreeNode rootNode) throws Exception {
+                      TreeNode rootNode,
+                      String user,
+                      String pass) throws Exception {
         m_rules = rules;
         m_nodeQueue = new ArrayList();
         queueNodes(rootNode);
@@ -44,11 +46,12 @@ public class FOXMLMaker implements fedora.common.Constants {
         }
         logger.info("All content is resolvable, OK");
 
-        // Generate PIDs while adding to map
+        // Generate PIDs and add to map for later
         m_pidMap = new HashMap();
+        PID[] pids = pidgen.getNextPIDs(m_nodeQueue.size(), user, pass);
         for (int i = 0; i < m_nodeQueue.size(); i++) {
             TreeNode node = (TreeNode) m_nodeQueue.get(i);
-            PID pid = pidgen.getNextPID();
+            PID pid = pids[i];
             logger.info("Generated PID: " + pid.toString());
             m_pidMap.put(node, pid);
         }

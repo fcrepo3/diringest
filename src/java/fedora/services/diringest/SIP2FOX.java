@@ -29,17 +29,43 @@ public abstract class SIP2FOX {
      */
     public static void main(String[] args) {
         System.out.println();
-        if (args.length != 2) {
-            System.err.println("ERROR: Two arguments required.");
+        if (args.length != 2 && args.length != 6 && args.length != 7) {
+            System.err.println("ERROR: Wrong number of arguments.");
             System.err.println();
-            System.err.println("Usage: sip2fox sipFile.zip outputDir");
+            System.err.println("Usage: sip2fox sipFile.zip outputDir [host port user pass [namespace]]");
             System.exit(1);
+        }
+        String host = null;
+        int port = 0;
+        String user = null;
+        String pass = null;
+        String namespace = null;
+        if (args.length > 2) {
+            host = args[2];
+            try {
+                port = Integer.parseInt(args[3]);
+                if (port < 0) throw new IOException("");
+            } catch (Exception e) {
+                System.err.println("ERROR: Bad port number: " + args[3]);
+                System.exit(1);
+            }
+            user = args[4];
+            pass = args[5];
+            if (args.length == 7) {
+                namespace = args[6];
+            }
         }
         initLogging();
         try {
             long startTime = System.currentTimeMillis();
             logger.info("Initializing...");
-            Converter c = new Converter(new TestPIDGenerator());
+            PIDGenerator pidgen;
+            if (user == null) {
+                pidgen = new TestPIDGenerator();
+            } else {
+                pidgen = new RemotePIDGenerator(namespace, host, port);
+            }
+            Converter c = new Converter(pidgen);
             String homeDir = System.getProperty("sip2fox.home");
             if (homeDir == null) {
                 System.out.println("ERROR: sip2fox.home property not set.");
@@ -52,7 +78,7 @@ public abstract class SIP2FOX {
             }
             ConversionRules rules = new ConversionRules(new FileInputStream(cRules));
             logger.info("Processing...");
-            FOXMLResult[] r = c.convert(rules, new File(args[0]));
+            FOXMLResult[] r = c.convert(rules, new File(args[0]), user, pass);
             logger.info("Saving results...");
             File dir = new File(args[1]);
             for (int i = 0; i < r.length; i++) {
