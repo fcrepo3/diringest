@@ -82,6 +82,7 @@ public class ZIPSIPReader implements SIPReader,
         while (path.startsWith("/")) {
             path = path.substring(1);
         }
+        path = path.replaceAll("\\+", " ").replaceAll("%20", " ");
         ZipEntry entry = m_file.getEntry(path);
         if (entry == null) {
             throw new IOException("ZIP entry not found: " + path);
