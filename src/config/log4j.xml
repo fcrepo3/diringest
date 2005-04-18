@@ -7,7 +7,7 @@
       <param name="ConversionPattern" value="%p %d{mm:ss.SS} (%c{1}) %m%n"/>
     </layout>
   </appender>
-
+  
   <category name="fedora.services.diringest">
     <priority value="INFO" />
 <!--
