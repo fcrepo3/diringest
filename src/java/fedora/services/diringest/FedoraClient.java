@@ -8,6 +8,11 @@ import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.*;
 import org.trippi.*;
 
+import fedora.client.*;
+import fedora.server.access.*;
+import fedora.server.management.*;
+import fedora.server.types.gen.*;
+
 public class FedoraClient {
 
     public static final String FEDORA_URI_PREFIX = "info:fedora/";
@@ -20,6 +25,8 @@ public class FedoraClient {
     private UsernamePasswordCredentials m_creds;
 
     private MultiThreadedHttpConnectionManager m_cManager;
+
+    private String m_serverVersion;
 
     public FedoraClient(String baseURL, String user, String pass) throws MalformedURLException {
         m_baseURL = baseURL;
@@ -58,6 +65,23 @@ public class FedoraClient {
         return in;
     }
 
+    public String getString(String locator, boolean failIfNotOK) throws IOException {
+        InputStream in = get(locator, failIfNotOK);
+        try {
+            BufferedReader reader = new BufferedReader(
+                                        new InputStreamReader(in));
+            StringBuffer buffer = new StringBuffer();
+            String line = reader.readLine();
+            while (line != null) {
+                buffer.append(line + "\n");
+                line = reader.readLine();
+            }
+            return buffer.toString();
+        } finally {
+            try { in.close(); } catch (Exception e) { }
+        }
+    }
+
     private String getURL(String locator) throws IOException {
         String url;
         if (locator.startsWith(FEDORA_URI_PREFIX)) {
@@ -74,6 +98,31 @@ public class FedoraClient {
             throw new IOException("Bad locator (must start with '" + FEDORA_URI_PREFIX + "', 'http://', or '/'");
         }
         return url;
+    }
+
+    public FedoraAPIM getAPIM() throws Exception {
+        if (getServerVersion().equals("2.0")) {
+            // use the old path for soap calls
+        } else {
+            // use the most recent known path for soap calls
+        }
+        return null;
+    }
+
+    public String getServerVersion() throws IOException {
+        if (m_serverVersion == null) {
+            String desc = getString("/describe?xml=true", true);
+            String[] parts = desc.split("<repositoryVersion>");
+            if (parts.length < 2) {
+                throw new IOException("Could not find repositoryVersion element in content of /describe?xml=true");
+            }
+            int i = parts[1].indexOf("<");
+            if (i == -1) {
+                throw new IOException("Could not find end of repositoryVersion element in content of /describe?xml=true");
+            }
+            m_serverVersion = parts[1].substring(0, i).trim();
+        }
+        return m_serverVersion;
     }
 
     public Date getLastModifiedDate(String locator) throws IOException {
