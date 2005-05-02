@@ -103,6 +103,7 @@ public class FedoraClient {
     public FedoraAPIM getAPIM() throws Exception {
         if (getServerVersion().equals("2.0")) {
             // use the old path for soap calls
+
         } else {
             // use the most recent known path for soap calls
         }
