@@ -35,6 +35,8 @@ public class IngestSIP extends HttpServlet
 
     private ConversionRules m_defaultRules;
     private Converter m_converter;
+
+    private String m_fedoraBaseURL;
     private String m_fedoraHost;
     private int m_fedoraPort;
     private String m_fedoraUser;
@@ -159,6 +161,18 @@ public class IngestSIP extends HttpServlet
         }
     }
 
+    private String getServerVersion() {
+        String describeURL = m_fedoraBaseURL + "describeRepository?xml=true";
+        logger.info("Determining server version via " + describeURL);
+        return null;
+
+
+
+// FIXME: return something
+
+
+    }
+
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         String id = request.getParameter("getStagedContent");
@@ -256,13 +270,19 @@ public class IngestSIP extends HttpServlet
             props.load(propStream);
 
             // Get the required properties
-            m_fedoraHost = props.getProperty("fedora.host"); 
-            if (m_fedoraHost == null) {
-                throw new IOException("Required property (fedora.host) not specified in /diringest.properties");
-            }
-            String port = props.getProperty("fedora.port"); 
-            if (port == null) {
-                throw new IOException("Required property (fedora.port) not specified in /diringest.properties");
+            m_fedoraBaseURL = props.getProperty("fedora.baseURL");
+            if (m_fedoraBaseURL == null) {
+                throw new IOException("Required property (fedora.baseURL) not specified in /diringest.properties");
+            } else {
+                try {
+                    if (!m_fedoraBaseURL.endsWith("/")) m_fedoraBaseURL += "/";
+                    URL baseURL = new URL(m_fedoraBaseURL);
+                    m_fedoraHost = baseURL.getHost();
+                    m_fedoraPort = baseURL.getPort();
+                    if (m_fedoraPort == -1) m_fedoraPort = baseURL.getDefaultPort();
+                } catch (Exception e) {
+                    throw new IOException("Bad URL syntax (fedora.baseURL): " + m_fedoraBaseURL);
+                }
             }
             m_fedoraUser = props.getProperty("fedora.user"); 
             if (m_fedoraUser == null) {
@@ -277,7 +297,6 @@ public class IngestSIP extends HttpServlet
             String pidNamespace = props.getProperty("pid.namespace");
 
             // Initialize the converter
-            m_fedoraPort = Integer.parseInt(port);
             m_converter = new Converter( 
                               new RemotePIDGenerator(pidNamespace, 
                                                      m_fedoraHost,
