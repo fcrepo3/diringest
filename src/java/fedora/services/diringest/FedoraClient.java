@@ -21,6 +21,9 @@ public class FedoraClient {
     public boolean FOLLOW_REDIRECTS = true;
 
     private String m_baseURL;
+    private String m_user;
+    private String m_pass;
+
     private String m_host;
     private UsernamePasswordCredentials m_creds;
 
@@ -30,6 +33,8 @@ public class FedoraClient {
 
     public FedoraClient(String baseURL, String user, String pass) throws MalformedURLException {
         m_baseURL = baseURL;
+        m_user = user;
+        m_pass = pass;
         if (!baseURL.endsWith("/")) m_baseURL += "/";
         URL url = new URL(m_baseURL);
         m_host = url.getHost();
@@ -100,14 +105,50 @@ public class FedoraClient {
         return url;
     }
 
-    public FedoraAPIM getAPIM() throws Exception {
+    public FedoraAPIA getAPIA() throws Exception {
+        URL baseURL = new URL(m_baseURL);
+        String protocol = baseURL.getProtocol();
+        String host = baseURL.getHost();
+        int port = baseURL.getPort();
+        if (port == -1) port = baseURL.getDefaultPort();
         if (getServerVersion().equals("2.0")) {
-            // use the old path for soap calls
-
+            return APIAStubFactory.getStubAltPath(protocol,
+											   	  host, 
+											   	  port,
+											   	  m_baseURL + "management/soap",  
+											   	  m_user,
+											   	  m_pass);
         } else {
-            // use the most recent known path for soap calls
+            return APIAStubFactory.getStubAltPath(protocol,
+											   	  host, 
+											   	  port,
+											   	  m_baseURL + "services/management",  
+											   	  m_user,
+											   	  m_pass);
         }
-        return null;
+    }
+
+    public FedoraAPIM getAPIM() throws Exception {
+        URL baseURL = new URL(m_baseURL);
+        String protocol = baseURL.getProtocol();
+        String host = baseURL.getHost();
+        int port = baseURL.getPort();
+        if (port == -1) port = baseURL.getDefaultPort();
+        if (getServerVersion().equals("2.0")) {
+            return APIMStubFactory.getStubAltPath(protocol,
+											   	  host, 
+											   	  port,
+											   	  baseURL.getPath() + "management/soap",  
+											   	  m_user,
+											   	  m_pass);
+        } else {
+            return APIMStubFactory.getStubAltPath(protocol,
+											   	  host, 
+											   	  port,
+											   	  baseURL.getPath() + "services/management",  
+											   	  m_user,
+											   	  m_pass);
+        }
     }
 
     public String getServerVersion() throws IOException {

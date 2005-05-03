@@ -89,21 +89,25 @@ public class IngestSIP extends HttpServlet
                 rules = new ConversionRules(new FileInputStream(tempRulesFile));
             }
 
+            // Make a Fedora Client 
+            FedoraClient fedora = new FedoraClient(m_fedoraBaseURL,
+                                                   m_fedoraUser,
+                                                   m_fedoraPass);
+
             // Convert the SIP to a bunch of FOXML
             results = m_converter.convert(rules, 
                                           tempSIPFile, 
                                           m_fedoraUser, 
                                           m_fedoraPass);
 
+
             // Ingest all the objects that resulted from the conversion
-            Ingester ingester = new StagingIngester(m_fedoraHost, 
-                                                    m_fedoraPort,
-                                                    this); // DatastreamStage
+            Ingester ingester = new StagingIngester(fedora, this); // DatastreamStage
             List ingestedPIDs = new ArrayList();
             try {
                 logger.info("Starting ingest of " + results.length + " objects");
                 for (int i = 0; i < results.length; i++) {
-                    ingester.ingest(m_fedoraUser, m_fedoraPass, results[i]);
+                    ingester.ingest(results[i]);
                     ingestedPIDs.add(results[i].getPID());
                 }
                 logger.info("Successfully ingested all objects");
@@ -111,7 +115,7 @@ public class IngestSIP extends HttpServlet
                 // If anything goes wrong, back out (delete) any objects
                 // that were already created
                 logger.warn("Failed to ingest a FOXMLResult", e);
-                purgeAll(m_fedoraUser, m_fedoraPass, ingestedPIDs);
+                purgeAll(fedora, ingestedPIDs);
                 throw new IOException(e.getMessage());
             }
             // At this point the ingest of the entire SIP was successful.
@@ -138,13 +142,10 @@ public class IngestSIP extends HttpServlet
         }
     }
 
-    private void purgeAll(String user, String pass, List pids) {
+    private void purgeAll(FedoraClient fedora, List pids) {
         logger.info("Backing out (purging) " + pids.size() + " already-ingested objects.");
         try {
-            FedoraAPIM apim = APIMStubFactory.getStub(m_fedoraHost,
-                                                      m_fedoraPort, 
-                                                      user,
-                                                      pass);
+            FedoraAPIM apim = fedora.getAPIM();
             for (int i = 0; i < pids.size(); i++) {
                 String pid = ((PID) pids.get(i)).toString();
                 try {
@@ -159,18 +160,6 @@ public class IngestSIP extends HttpServlet
         } catch (Exception e) {
             logger.warn("Unable to purge already-ingested objects (Can't get a Fedora APIM instance)", e);
         }
-    }
-
-    private String getServerVersion() {
-        String describeURL = m_fedoraBaseURL + "describeRepository?xml=true";
-        logger.info("Determining server version via " + describeURL);
-        return null;
-
-
-
-// FIXME: return something
-
-
     }
 
     public void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -299,8 +288,7 @@ public class IngestSIP extends HttpServlet
             // Initialize the converter
             m_converter = new Converter( 
                               new RemotePIDGenerator(pidNamespace, 
-                                                     m_fedoraHost,
-                                                     m_fedoraPort));
+                                                     m_fedoraBaseURL));
         } catch (Exception e) {
             e.printStackTrace();
             throw new ServletException("Unable to initialize", e);

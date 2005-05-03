@@ -67,7 +67,7 @@ public abstract class SIP2FOX {
             if (user == null) {
                 pidgen = new TestPIDGenerator();
             } else {
-                pidgen = new RemotePIDGenerator(namespace, host, port);
+                pidgen = new RemotePIDGenerator(namespace, "http://" + host + ":" + port + "/fedora/");
             }
             Converter c = new Converter(pidgen);
             String homeDir = System.getProperty("sip2fox.home");
