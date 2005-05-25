@@ -32,6 +32,7 @@ public class METSReader extends DefaultHandler {
     private String m_currentID;
     private String m_currentLabel;
     private String m_currentMIME;
+    private String m_currentFormatURI;
     private String m_currentLocator;
     private String m_currentLocatorType;
     private File m_xmlDataFile;
@@ -78,6 +79,7 @@ public class METSReader extends DefaultHandler {
             }
             m_currentLabel = a.getValue("", "LABEL");
             m_currentMIME = a.getValue("", "MIMETYPE");
+            m_currentFormatURI = a.getValue("", "FORMATURI");
             logger.info("Parsing dmdSec (ID = " + m_currentID + ")");
         } else if (m_currentID != null) {
             // Inside a dmdSec or file
@@ -116,6 +118,7 @@ public class METSReader extends DefaultHandler {
             if (m_currentID == null || m_currentMIME == null) {
                 throw new SAXException("file element must have ID and MIMETYPE attributes");
             }
+            m_currentFormatURI = a.getValue("", "FORMATURI");
             logger.info("Parsing file with ID = " + m_currentID);
         } else if (uri.equals(METS) && localName.equals("div")) {
             String label = a.getValue("", "LABEL");
@@ -167,7 +170,12 @@ public class METSReader extends DefaultHandler {
     public void characters(char[] ch, int start, int length) throws SAXException {
         if (m_xmlData != null) {
             try {
-                m_xmlData.write(ch, start, length);
+                StringBuffer buf = new StringBuffer();
+                for (int i = start; i < start + length; i++) {
+                    buf.append(ch[i]);
+                }
+                String encodedChars = enc(buf.toString());
+                m_xmlData.write(encodedChars, 0, encodedChars.length());
             } catch (Exception e) {
                 String msg = "Unable to write characters for xmlData";
                 logger.warn(msg, e);
@@ -225,7 +233,11 @@ public class METSReader extends DefaultHandler {
             m_filesToDelete.add(m_xmlDataFile);
             String mime = m_currentMIME;
             if (mime == null) mime = INLINE_XML_MIMETYPE;
-            FileBasedSIPContent content = new FileBasedSIPContent(m_currentID, true, mime, m_xmlDataFile);
+            FileBasedSIPContent content = new FileBasedSIPContent(m_currentID, 
+                                                                  true, 
+                                                                  mime, 
+                                                                  m_currentFormatURI, 
+                                                                  m_xmlDataFile);
             content.setLabel(m_currentLabel);
             m_contentMap.put(m_currentID, content);
             m_xmlDataFile = null;
@@ -262,6 +274,7 @@ public class METSReader extends DefaultHandler {
                                                  m_currentID, 
                                                  false, 
                                                  m_currentMIME, 
+                                                 m_currentFormatURI,
                                                  m_dataResolver,
                                                  m_currentLocatorType,
                                                  m_currentLocator);
@@ -272,7 +285,12 @@ public class METSReader extends DefaultHandler {
                 } else {
                     // it was an xmlData
                     m_filesToDelete.add(m_xmlDataFile);
-                    m_contentMap.put(m_currentID, new FileBasedSIPContent(m_currentID, true, m_currentMIME, m_xmlDataFile));
+                    m_contentMap.put(m_currentID, 
+                                     new FileBasedSIPContent(m_currentID, 
+                                                             true, 
+                                                             m_currentMIME, 
+                                                             m_currentFormatURI,
+                                                             m_xmlDataFile));
                     m_xmlDataFile = null;
                     m_currentID = null;
                 }

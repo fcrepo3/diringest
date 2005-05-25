@@ -7,6 +7,7 @@ public class FileBasedSIPContent implements SIPContent {
     private String m_id;
     private boolean m_wasInline;
     private String m_mimeType;
+    private String m_formatURI;
     private File m_file;
 
     private String m_label;
@@ -15,10 +16,12 @@ public class FileBasedSIPContent implements SIPContent {
     public FileBasedSIPContent(String id,
                                boolean wasInline,
                                String mimeType,
+                               String formatURI,
                                File file) {
         m_id = id;
         m_wasInline = wasInline;
         m_mimeType = mimeType;
+        m_formatURI = formatURI;
         m_file = file;
     }
 
@@ -33,6 +36,8 @@ public class FileBasedSIPContent implements SIPContent {
     public boolean wasInline() { return m_wasInline; }
 
     public String getMIMEType() { return m_mimeType; }
+
+    public String getFormatURI() { return m_formatURI; }
 
     public InputStream getInputStream() throws IOException {
         return new FileInputStream(m_file);

@@ -94,7 +94,11 @@ public class StagingFOXMLParser extends DefaultHandler {
                 throw new SAXException(msg, e);
             }
         } else {
-            m_out.append(ch, start, length);
+            StringBuffer buf = new StringBuffer();
+            for (int i = start; i < start + length; i++) {
+                buf.append(ch[i]);
+            }
+            m_out.append(StreamUtil.xmlEncode(buf.toString()));
         }
     }
 

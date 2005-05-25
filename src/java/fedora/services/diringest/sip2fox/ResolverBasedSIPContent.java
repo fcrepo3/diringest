@@ -7,6 +7,7 @@ public class ResolverBasedSIPContent implements SIPContent {
     private String m_id;
     private boolean m_wasInline;
     private String m_mimeType;
+    private String m_formatURI;
     private DataResolver m_resolver;
     private String m_locatorType;
     private String m_locator;
@@ -17,12 +18,14 @@ public class ResolverBasedSIPContent implements SIPContent {
     public ResolverBasedSIPContent(String id,
                                    boolean wasInline,
                                    String mimeType,
+                                   String formatURI,
                                    DataResolver resolver,
                                    String locatorType,
                                    String locator) {
         m_id = id;
         m_wasInline = wasInline;
         m_mimeType = mimeType;
+        m_formatURI = formatURI;
         m_resolver = resolver;
         m_locatorType = locatorType;
         m_locator = locator;
@@ -39,6 +42,8 @@ public class ResolverBasedSIPContent implements SIPContent {
     public boolean wasInline() { return m_wasInline; }
 
     public String getMIMEType() { return m_mimeType; }
+
+    public String getFormatURI() { return m_formatURI; }
 
     public InputStream getInputStream() throws IOException {
         return m_resolver.getData(m_locatorType, m_locator);

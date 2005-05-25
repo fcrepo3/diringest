@@ -16,6 +16,8 @@ public interface SIPContent {
 
     public String getMIMEType();
 
+    public String getFormatURI();
+
     public InputStream getInputStream() throws IOException;
 
     // do a basic check to see if the input stream can be retrieved

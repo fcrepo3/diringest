@@ -135,7 +135,7 @@ public class FOXMLMaker implements fedora.common.Constants {
         //       add those here.  Currently the only data RELS-EXT will hold
         //       is that which is inferred by the rules.
         if (rels.size() > 0) {
-            startDatastream("RELS-EXT", "X", "A", "true", "text/xml", 
+            startDatastream("RELS-EXT", "X", "A", "true", "text/xml", null,
                             "Relationship Metadata", out);
             out.println("      <xmlContent>");
             out.print(  "        <rdf:RDF xmlns:rdf=\"" + m_rules.getNamespaceURI("rdf") + "\"");
@@ -236,8 +236,9 @@ public class FOXMLMaker implements fedora.common.Constants {
         String st = "A";
         String v = "true";
         String m = content.getMIMEType();
+        String f = content.getFormatURI();
         String l = content.getLabel();
-        startDatastream(id, cg, st, v, m, l, out);
+        startDatastream(id, cg, st, v, m, f, l, out);
     }
 
     private void startDatastream(String id,
@@ -245,11 +246,16 @@ public class FOXMLMaker implements fedora.common.Constants {
                                  String st,
                                  String v,
                                  String m,
+                                 String f,
                                  String l,
                                  PrintWriter out) {
         String labelInfo = "";
         if (l != null) {
             labelInfo = " LABEL=\"" + enc(l) + "\"";
+        }
+        String formatInfo = "";
+        if (f != null && f.length() > 0) {
+            formatInfo = " FORMAT_URI=\"" + enc(f) + "\"";
         }
         out.println("  <datastream ID=\"" + id + "\""
                                + " CONTROL_GROUP=\"" + cg + "\""
@@ -257,6 +263,7 @@ public class FOXMLMaker implements fedora.common.Constants {
                                + " VERSIONABLE=\"" + v + "\">");
         out.println("    <datastreamVersion ID=\"" + id + ".0\""
                                         + " MIMETYPE=\"" + m + "\""
+                                        + formatInfo
                                         + labelInfo + ">");
     }
 

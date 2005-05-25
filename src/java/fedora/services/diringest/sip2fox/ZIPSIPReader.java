@@ -64,7 +64,7 @@ public class ZIPSIPReader implements SIPReader,
         }
     }
 
-    /** Currently only supports locators beginning with "file:" */
+    /** Curently only supports locators beginning with "file:" */
     public InputStream getData(String locatorType, String locator) throws IOException {
         return m_file.getInputStream(getEntry(locator));
     }
@@ -85,6 +85,16 @@ public class ZIPSIPReader implements SIPReader,
         path = path.replaceAll("\\+", " ").replaceAll("%20", " ");
         ZipEntry entry = m_file.getEntry(path);
         if (entry == null) {
+            // try same path, but with /'s as \'s
+            entry = m_file.getEntry(path.replaceAll("/", "\\\\"));
+        }
+        if (entry == null) {
+            logger.info("All ZIP entry names follow:");
+            Enumeration entries = m_file.entries();
+            while (entries.hasMoreElements()) {
+                entry = (ZipEntry) entries.nextElement();
+                logger.info("\"" + entry.getName() + "\"");
+            }
             throw new IOException("ZIP entry not found: " + path);
         }
         return entry;
