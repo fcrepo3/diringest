@@ -82,7 +82,10 @@ public class ZIPSIPReader implements SIPReader,
         while (path.startsWith("/")) {
             path = path.substring(1);
         }
-        path = path.replaceAll("\\+", " ").replaceAll("%20", " ");
+        //Interpret "+" and "%20" as a space (" "), and ensure that the "/" character
+        //is used as a directory seperator
+        path = path.replaceAll("\\+", " ").replaceAll("%20", " ").replaceAll("\\\\", "/");
+        
         ZipEntry entry = m_file.getEntry(path);
         if (entry == null) {
             // try same path, but with /'s as \'s
