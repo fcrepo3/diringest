@@ -3,6 +3,7 @@ package fedora.services.diringest.sip2fox.pidgen;
 import java.io.*;
 import org.apache.log4j.*;
 
+import fedora.client.FedoraClient;
 import fedora.services.diringest.*;
 import fedora.common.*;
 
