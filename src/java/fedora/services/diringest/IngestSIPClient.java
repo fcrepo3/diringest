@@ -56,6 +56,7 @@ public class IngestSIPClient {
         try {
             HttpClient client=new HttpClient(m_cManager);
             client.setConnectionTimeout(20000); // wait 20 seconds max
+            client.setConnectionTimeout(1000 * 60 * 20); // 20 minutes max
 //            client.getState().setCredentials(null, null, m_creds);
 //            client.getState().setAuthenticationPreemptive(true); // don't bother with challenges
             post=new MultipartPostMethod(m_endpoint);
