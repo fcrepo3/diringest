@@ -61,7 +61,7 @@ public class Converter {
         if (sipFile.isDirectory()) {
             return new DirectorySIPReader(sipFile, false);
         } else {
-            if (sipFile.length() < 250 * 1024 * 1024) {
+            if (sipFile.length() < 200 * 1024 * 1024) {
                 // less than 250MB, so process it directly from
                 // the ZIP file
                 return new ZIPSIPReader(new ZipFile(sipFile));

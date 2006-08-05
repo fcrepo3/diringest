@@ -29,7 +29,12 @@ public class DirectorySIPReader implements SIPReader,
     public DirectorySIPReader(File dir, boolean deleteOnClose) throws Exception {
         _dir = dir;
         _deleteOnClose = deleteOnClose;
-        _metsReader = new METSReader(getInputStream(METS_ENTRY_PATH), this);
+        try {
+            _metsReader = new METSReader(getInputStream(METS_ENTRY_PATH), this);
+        } catch (Exception e) {
+            close();
+            throw e;
+        }
     }
 
     /**
@@ -53,11 +58,15 @@ public class DirectorySIPReader implements SIPReader,
 
     // Implements SIPReader.close()
     public void close() {
-        if (_deleteOnClose) {
+        if (_deleteOnClose && _dir != null) {
             Converter.deleteTempDir(_dir);
+            _dir = null;
         }
         try {
-            _metsReader.close();
+            if (_metsReader != null) {
+                _metsReader.close();
+                _metsReader = null;
+            }
         } catch (IOException e) {
             _LOG.warn("Could not close METS reader.", e);
         }
@@ -93,6 +102,10 @@ public class DirectorySIPReader implements SIPReader,
         //Interpret "+" and "%20" as a space (" "), and ensure that the "/" character
         //is used as a directory seperator
         return path.replaceAll("\\+", " ").replaceAll("%20", " ").replaceAll("\\\\", "/");
+    }
+
+    public void finalize() {
+        close();
     }
 
 }
