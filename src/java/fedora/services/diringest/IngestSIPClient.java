@@ -4,10 +4,14 @@ import java.io.*;
 
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.*;
+import org.apache.commons.httpclient.methods.multipart.*;
 
 public class IngestSIPClient {
 
-    private MultiThreadedHttpConnectionManager m_cManager=
+    private static final int TIMEOUT_SECONDS        = 60000; // 100 min
+    private static final int SOCKET_TIMEOUT_SECONDS = 60000;
+
+    private MultiThreadedHttpConnectionManager m_cManager =
             new MultiThreadedHttpConnectionManager();
 
     private String m_endpoint;
@@ -18,63 +22,63 @@ public class IngestSIPClient {
     public IngestSIPClient(String endpoint)
             throws IOException {
         m_endpoint=endpoint;
-//        m_creds=new UsernamePasswordCredentials(user, pass);
+		m_cManager.getParams().setConnectionTimeout(TIMEOUT_SECONDS * 1000);
+		m_cManager.getParams().setSoTimeout(SOCKET_TIMEOUT_SECONDS * 1000);
     }
 
     /**
-     * Get a file's size, in bytes.  Return -1 if size can't be determined.
-    private long getFileSize(File f) {
-        long size=0;
-        InputStream in=null;
-        try {
-            in=new FileInputStream(f);
-            byte[] buf = new byte[8192];
-            int len;
-            while ( ( len = in.read( buf ) ) > 0 ) {
-                size+=len;
-            }
-        } catch (IOException e) {
-        } finally {
-            size=-1;
-            try {
-                if (in!=null) {
-                    in.close();
-                }
-            } catch (IOException e) {
-                System.err.println("WARNING: Could not close stream.");
-            }
-        }
-        return size;
-    }
+     * Upload the given file to the endpoint via HTTP POST.
+     *
+     * @return the response XML as a string.
      */
-
-    /**
-     * Send a file to the server, getting back the identifier.
-     */
-    public String upload(File in) throws IOException {
-        MultipartPostMethod post=null;
+    public String upload(File file)
+            throws IOException {
+        PostMethod post = null;
         try {
-            HttpClient client=new HttpClient(m_cManager);
-            client.setConnectionTimeout(20000); // wait 20 seconds max
-            client.setConnectionTimeout(1000 * 60 * 20); // 20 minutes max
-//            client.getState().setCredentials(null, null, m_creds);
-//            client.getState().setAuthenticationPreemptive(true); // don't bother with challenges
-            post=new MultipartPostMethod(m_endpoint);
+            // prepare the post method
+            post = new PostMethod(m_endpoint);
 //            post.setDoAuthentication(true);
-            post.addParameter("sip", in);
-            int resultCode=client.executeMethod(post);
-            if (resultCode!=201) {
-                throw new IOException(HttpStatus.getStatusText(resultCode)
-                        + ": " 
-                        + replaceNewlines(post.getResponseBodyAsString(), " "));
-            }
-            return replaceNewlines(post.getResponseBodyAsString(), "");
-        } catch (Exception e) {
-            throw new IOException(e.getMessage());
-        } finally {
-            if (post!=null) post.releaseConnection();
-        }
+            post.getParams().setParameter("Connection","Keep-Alive");
 
+            // chunked encoding is not required by the Fedora server,
+            // but makes uploading very large files possible
+            post.setContentChunked(true);
+
+            // add the file part
+            Part[] parts = { new FilePart("sip", file) };
+            post.setRequestEntity(new MultipartRequestEntity(parts, 
+                    post.getParams()));
+
+            HttpClient client = new HttpClient();
+//            client.getState().setCredentials(m_authScope, m_creds);
+//            client.getParams().setAuthenticationPreemptive(true);
+
+            // execute and get the response
+            int responseCode = client.executeMethod(post);
+            String body = null;
+            try { 
+                body = post.getResponseBodyAsString();
+            } catch (Exception e) {
+                IOException ioe = new IOException("Unable to read response body");
+                ioe.initCause(e);
+                throw ioe;
+            }
+            if (body == null) {
+                body = "[empty response body]";
+            }
+            body = body.trim();
+            if (responseCode != HttpStatus.SC_CREATED) {
+                throw new IOException("Upload failed: " 
+                        + HttpStatus.getStatusText(responseCode)
+                        + ": " + replaceNewlines(body, " "));
+            } else {
+                return replaceNewlines(body, "");
+            }
+        } finally {
+            if (post != null) {
+                post.releaseConnection();
+            }
+        }
     }
 
     /**

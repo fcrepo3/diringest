@@ -10,7 +10,7 @@ import fedora.common.*;
 /**
  * PIDGenerator that uses a remote Fedora instance to generate PIDs.
  *
- * http://localhost:8080/fedora/mgmt/getNextPID?numPIDs=10&namespace=nara&xml=true
+ * http://localhost:8080/fedora/management/getNextPID?numPIDs=10&namespace=nara&xml=true
  */
 public class RemotePIDGenerator implements PIDGenerator {
 
@@ -31,7 +31,7 @@ public class RemotePIDGenerator implements PIDGenerator {
             ns = "&namespace=" + namespace;
             logger.info("Using namespace '" + namespace + "'");
         }
-        m_urlStart = "/mgmt/getNextPID?xml=true" + ns + "&numPIDs=";
+        m_urlStart = "/management/getNextPID?xml=true" + ns + "&numPIDs=";
     }
 
     public PID getNextPID(String user, String pass) throws IOException {
