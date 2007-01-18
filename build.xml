@@ -1,27 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="diringest" default="dist" basedir=".">
-	<loadproperties srcFile="build.properties"/>
-	<path id="all-jars.path">
-		<pathelement location="${lib.base64}"/>
-		<pathelement location="${lib.jrdf}"/>
-		<pathelement location="${lib.trippi}"/>
-		<pathelement location="${lib.httpclient}"/>
-		<pathelement location="${lib.codec}"/>
-		<pathelement location="${lib.logging}"/>
-		<pathelement location="${lib.log4j}"/>
-		<pathelement location="${lib.xerces}"/>
-		<pathelement location="${lib.xml-apis}"/>
-		<pathelement location="${lib.fedoraclient}"/>
-		<pathelement location="${lib.cos}"/>
-		<pathelement location="${lib.servlet}"/>
-		<pathelement location="${lib.saaj}"/>
-		<pathelement location="${lib.axis}"/>
-		<pathelement location="${lib.wsdl4j}"/>
-		<pathelement location="${lib.jaxrpc}"/>
-		<pathelement location="${lib.discovery}"/>
-		<pathelement location="${lib.xmlpull}"/>
-		<pathelement location="${lib.xpp}"/>
-	</path>
+
+  <loadproperties srcFile="build.properties"/>
+
+  <property name="diringest.version" value="1.1"/>
+
+  <path id="all-jars.path">
+    <pathelement location="${lib.base64}"/>
+    <pathelement location="${lib.jrdf}"/>
+    <pathelement location="${lib.trippi}"/>
+    <pathelement location="${lib.httpclient}"/>
+    <pathelement location="${lib.codec}"/>
+    <pathelement location="${lib.logging}"/>
+    <pathelement location="${lib.log4j}"/>
+    <pathelement location="${lib.xerces}"/>
+    <pathelement location="${lib.xml-apis}"/>
+    <pathelement location="${lib.fedoraclient}"/>
+    <pathelement location="${lib.cos}"/>
+    <pathelement location="${lib.servlet}"/>
+    <pathelement location="${lib.saaj}"/>
+    <pathelement location="${lib.axis}"/>
+    <pathelement location="${lib.wsdl4j}"/>
+    <pathelement location="${lib.jaxrpc}"/>
+    <pathelement location="${lib.discovery}"/>
+    <pathelement location="${lib.xmlpull}"/>
+    <pathelement location="${lib.xpp}"/>
+  </path>
+
   <target name="classes" 
           depends="prep"
           description="build all java classes into temp/classes">
@@ -30,13 +35,41 @@
            classpathref="all-jars.path"
            optimize="${optimize}" debug="${debug}"/>
   </target>
-  <target name="release" depends="dist, doc">
+
+  <target name="binrelease" depends="dist, doc">
+    <copy todir="dist/release/diringest-${diringest.version}">
+      <fileset dir="dist">
+        <exclude name="release/**"/>
+      </fileset>
+    </copy>
+    <zip zipfile="dist/release/diringest-${diringest.version}.zip" basedir="dist/release" includes="diringest-${diringest.version}/**"/>
+    <delete dir="dist/release/diringest-${diringest.version}"/>
   </target>
+
+  <target name="srcrelease" depends="clean">
+    <copy todir="dist/release/diringest-${diringest.version}-src">
+      <fileset dir=".">
+        <exclude name="dist/**"/>
+      </fileset>
+    </copy>
+    <zip zipfile="dist/release/diringest-${diringest.version}-src.zip" basedir="dist/release" includes="diringest-${diringest.version}-src/**"/>
+    <delete dir="dist/release/diringest-${diringest.version}-src"/>
+  </target>
+
+  <target name="release" depends="srcrelease,binrelease" description="Build the source and binary distributions in dist/release">
+    <checksum fileext=".md5">
+      <fileset dir="dist/release">
+        <include name="*.zip"/>
+      </fileset>
+    </checksum>
+  </target>
+
   <target name="dist" depends="sip2fox, diringest">
     <copy todir="dist">
       <fileset dir="src/dist"/>
     </copy>
   </target>
+
   <target name="diringest"
           depends="classes"
           description="build the diringest war file in dist">
@@ -49,13 +82,14 @@
       <fileset dir="src/config"/>
     </copy>
     <mkdir dir="temp/webapp/WEB-INF/lib"/>
-    <copy todir="temp/webapp/WEB-INF/lib">
+      <copy todir="temp/webapp/WEB-INF/lib">
       <fileset dir="lib">
         <exclude name="servlet-2.3.jar"/>
       </fileset>
     </copy>
     <jar jarfile="dist/diringest.war" basedir="temp/webapp"/>
   </target>
+
   <target name="sip2fox"
           depends="classes"
           description="build the sip2fox distribution in dist/sip2fox">
@@ -85,9 +119,10 @@
       <fileset dir="src/config"/>
     </copy>
   </target>
+
   <target name="doc"
           depends="prep"
-		  description="Build the documentation in dist/doc">
+      description="Build the documentation in dist/doc">
     <mkdir dir="dist/doc"/>
     <copy todir="dist/doc">
       <fileset dir="src/doc"/>
@@ -103,21 +138,17 @@
       </fileset>
     </javadoc>
   </target>
-  <target name="source"
-          description="build diringest-source.zip"
-          depends="clean">
-    <zip zipfile="diringest-source.zip" basedir="."/>
-  </target>
+
   <target name="prep"
           description="prepare for a build">
     <mkdir dir="temp"/>
     <mkdir dir="temp/classes"/>
     <mkdir dir="dist"/>
   </target>
+
   <target name="clean"
           description="remove all build-generated stuff">
       <delete dir="temp"/>
       <delete dir="dist"/>
-      <delete file="diringest-source.zip"/>
   </target>
 </project>
