@@ -27,30 +27,30 @@ import fedora.server.management.*;
  * This service will act on behalf of a user whose name/password is
  * configured.
  */
-public class IngestSIP extends HttpServlet 
-                       implements DatastreamStage {
-
+public class IngestSIP extends HttpServlet
+        implements DatastreamStage {
+    
     private static final Logger logger =
             Logger.getLogger(IngestSIP.class.getName());
-
+    
     private ConversionRules m_defaultRules;
     private Converter m_converter;
-
+    
     private String m_fedoraBaseURL;
     private String m_fedoraHost;
     private int m_fedoraPort;
     private String m_fedoraUser;
     private String m_fedoraPass;
-
+    
     private Map m_stagedContent;
-
+    
     private String m_requestURL;
-
+    
     /**
      * The servlet entry point.  http://host:port/diringest/ingestSIP
      */
-    public void doPost(HttpServletRequest request, 
-            HttpServletResponse response) 
+    public void doPost(HttpServletRequest request,
+            HttpServletResponse response)
             throws IOException {
         if (m_requestURL == null) {
             m_requestURL = request.getRequestURL().toString();
@@ -58,26 +58,57 @@ public class IngestSIP extends HttpServlet
         File tempSIPFile = null;
         File tempRulesFile = null;
         FOXMLResult[] results = null;
-		try {
-
-            // Save the 'sip' and (optional) 'rules' streams as they come
-            MultipartParser parser=new MultipartParser(request, 
-                Long.MAX_VALUE, true, null);
-			Part part = parser.readNextPart();
-            while (part != null) {
-                if (part.isFile()) {
-                    FilePart filePart = (FilePart) part;
-                    String path = filePart.getFilePath();
-                    if (path != null && path.length() > 0) {
-                        if (filePart.getName().equals("sip")) {
-                            tempSIPFile = getTempFile(filePart);
-                        } else if (filePart.getName().equals("rules")) {
-                            tempRulesFile = getTempFile(filePart);
+        
+        String sipPath = null, rulesPath = null;
+        
+        
+        
+        
+        try {
+            
+            
+            
+            
+            sipPath = request.getParameter("sipPath");
+            
+            if (sipPath != null && sipPath.length() > 0) { // The local input form has been used, meaning the input files are on the same machine as the DirIngest application, so they are used directly and not uploaded via http. The SIP file can be either a zip file or a directory
+                tempSIPFile = new File(sipPath);
+                
+                rulesPath = request.getParameter("rulesPath");
+                if (rulesPath != null && rulesPath.length()>0){
+                    tempRulesFile = new File(rulesPath);
+                }
+                
+                
+            }
+            
+            
+            
+            
+            
+            else { //The http upload form has been used. The SIP input can be either a directory or a zip file; the input files are to be uploaded via http before processing
+                
+                // Save the 'sip' and (optional) 'rules' streams as they come
+                MultipartParser parser=new MultipartParser(request,
+                        Long.MAX_VALUE, true, null);
+                Part part = parser.readNextPart();
+                while (part != null) {
+                    if (part.isFile()) {
+                        FilePart filePart = (FilePart) part;
+                        String path = filePart.getFilePath();
+                        if (path != null && path.length() > 0) {
+                            if (filePart.getName().equals("sip")) {
+                                tempSIPFile = getTempFile(filePart);
+                            } else if (filePart.getName().equals("rules")) {
+                                tempRulesFile = getTempFile(filePart);
+                            }
                         }
                     }
+                    part = parser.readNextPart();
                 }
-			    part = parser.readNextPart();
+                
             }
+            
             if (tempSIPFile == null) {
                 doError(HttpServletResponse.SC_BAD_REQUEST,
                         "Required parameter (sip) not provided", response);
@@ -88,19 +119,19 @@ public class IngestSIP extends HttpServlet
             } else {
                 rules = new ConversionRules(new FileInputStream(tempRulesFile));
             }
-
-            // Make a Fedora Client 
+            
+            // Make a Fedora Client
             FedoraClient fedora = new FedoraClient(m_fedoraBaseURL,
-                                                   m_fedoraUser,
-                                                   m_fedoraPass);
-
+                    m_fedoraUser,
+                    m_fedoraPass);
+            
             // Convert the SIP to a bunch of FOXML
-            results = m_converter.convert(rules, 
-                                          tempSIPFile, 
-                                          m_fedoraUser, 
-                                          m_fedoraPass);
-
-
+            results = m_converter.convert(rules,
+                    tempSIPFile,
+                    m_fedoraUser,
+                    m_fedoraPass);
+            
+            
             // Ingest all the objects that resulted from the conversion
             Ingester ingester = new StagingIngester(fedora, this); // DatastreamStage
             List ingestedPIDs = new ArrayList();
@@ -119,21 +150,23 @@ public class IngestSIP extends HttpServlet
                 throw new IOException(e.getMessage());
             }
             // At this point the ingest of the entire SIP was successful.
-
-
+            
+            
             // TODO: Put some kind of hook here to notify a search/other
             //       service and possibly pass data to it
-
-
-
+            
+            
+            
             doSuccess(ingestedPIDs, response);
-		} catch (Exception e) {
+        } catch (Exception e) {
             logger.warn("Error", e);
             doError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
                     e.getClass().getName() + ": " + e.getMessage(), response);
         } finally {
-            if (tempSIPFile != null) tempSIPFile.delete();
-            if (tempRulesFile != null) tempRulesFile.delete();
+            if (!(sipPath != null && sipPath.length() > 0)){ //delete input files only if they were uploaded via http; do not delete local files pointed to directly
+                if (tempSIPFile != null) tempSIPFile.delete();
+                if (tempRulesFile != null) tempRulesFile.delete();
+            }
             if (results != null) {
                 for (int i = 0; i < results.length; i++) {
                     results[i].close();
@@ -141,7 +174,7 @@ public class IngestSIP extends HttpServlet
             }
         }
     }
-
+    
     private void purgeAll(FedoraClient fedora, List pids) {
         logger.info("Backing out (purging) " + pids.size() + " already-ingested objects.");
         try {
@@ -150,8 +183,8 @@ public class IngestSIP extends HttpServlet
                 String pid = ((PID) pids.get(i)).toString();
                 try {
                     apim.purgeObject(pid,
-                                     "Automatically backed-out by diringest service", 
-                                     false);
+                            "Automatically backed-out by diringest service",
+                            false);
                     logger.info("Purged " + pid);
                 } catch (Exception e) {
                     logger.warn("Unable to purge " + pid, e);
@@ -161,22 +194,39 @@ public class IngestSIP extends HttpServlet
             logger.warn("Unable to purge already-ingested objects (Can't get a Fedora APIM instance)", e);
         }
     }
-
+    
     public void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
+    throws IOException {
         String id = request.getParameter("getStagedContent");
+        String localInput = request.getParameter("local"); //local will be on if servlet called as http://host:port/diringest/ingestSIP&local=yes
         if (id == null) {
-            response.setStatus(200);
-            response.setContentType("text/html");
-            PrintWriter w = response.getWriter();
-            w.println("<html><body><h2>IngestSIP Test Form</h2><hr size=\"1\"/>");
-            w.println("<form method=\"POST\" enctype=\"multipart/form-data\">");
-            w.println("SIP File <input type=\"file\" size=\"50\" name=\"sip\"/><br/>");
-            w.println("Custom Rules File (Optional) <input type=\"file\" size=\"50\" name=\"rules\"/><br/>");
-            w.println("<input type=\"submit\"/><br/>");
-            w.println("</body></html>");
-            w.flush();
-            w.close();
+            if (localInput == null || !localInput.equals("yes")){
+                response.setStatus(200);
+                response.setContentType("text/html");
+                PrintWriter w = response.getWriter();
+                w.println("<html><body><h2>IngestSIP Test Form</h2><hr size=\"1\"/>");
+                w.println("<form method=\"POST\" enctype=\"multipart/form-data\">");
+                w.println("SIP File <input type=\"file\" size=\"50\" name=\"sip\"/><br/>");
+                w.println("Custom Rules File (Optional) <input type=\"file\" size=\"50\" name=\"rules\"/><br/>");
+                w.println("<input type=\"submit\"/><br/>");
+                w.println("</body></html>");
+                w.flush();
+                w.close();
+            } else { //Servlet called with local input (files on the same machine as DirIngest), where the SIP can either be a zip file or a directory
+                response.setStatus(200);
+                response.setContentType("text/html");
+                PrintWriter w = response.getWriter();
+                w.println("<html><body><h2>IngestSIP Test Form</h2><hr size=\"1\"/>");
+                w.println("<form method=\"POST\">");
+                //input type changed to text instead of file to accomodate full file paths to be called by doPost above
+                w.println("SIP File <input type=\"text\" size=\"50\" name=\"sipPath\"/><br/>");
+                w.println("Custom Rules File (Optional) <input type=\"text\" size=\"50\" name=\"rulesPath\"/><br/>");
+                w.println("<input type=\"submit\"/><br/>");
+                w.println("</body></html>");
+                w.flush();
+                w.close();
+                
+            }
         } else {
             File f = (File) m_stagedContent.get(id);
             if (f == null) {
@@ -190,10 +240,10 @@ public class IngestSIP extends HttpServlet
                 out.close();
             }
         }
-	}
-
-    public void doSuccess(List pids, 
-                          HttpServletResponse response) {
+    }
+    
+    public void doSuccess(List pids,
+            HttpServletResponse response) {
         try {
             response.setStatus(HttpServletResponse.SC_CREATED);
             response.setContentType("text/xml");
@@ -210,10 +260,10 @@ public class IngestSIP extends HttpServlet
             logger.warn("Error sending successful pidList", e);
         }
     }
-
-    public void doError(int status, 
-                        String message, 
-                        HttpServletResponse response) {
+    
+    public void doError(int status,
+            String message,
+            HttpServletResponse response) {
         try {
             response.setStatus(status);
             response.setContentType("text/plain");
@@ -223,7 +273,7 @@ public class IngestSIP extends HttpServlet
             logger.warn("Error sending error response", e);
         }
     }
-
+    
     private File getTempFile(FilePart filePart) throws IOException {
         File tempFile = File.createTempFile("diringest", ".tmp");
         FileOutputStream out = new FileOutputStream(tempFile);
@@ -232,9 +282,9 @@ public class IngestSIP extends HttpServlet
         } finally {
             out.close();
         }
-		return tempFile;
-	}
-
+        return tempFile;
+    }
+    
     /**
      * Initialize servlet.
      *
@@ -249,7 +299,7 @@ public class IngestSIP extends HttpServlet
                 throw new IOException("Error loading default conversion rules: /crules.xml not found in classpath");
             }
             m_defaultRules = new ConversionRules(rulesStream);
-
+            
             // Get the properties from WEB/INF/classes/diringest.properties
             InputStream propStream = this.getClass().getResourceAsStream("/diringest.properties");
             if (propStream == null) {
@@ -257,7 +307,7 @@ public class IngestSIP extends HttpServlet
             }
             Properties props = new Properties();
             props.load(propStream);
-
+            
             // Get the required properties
             m_fedoraBaseURL = props.getProperty("fedora.baseURL");
             if (m_fedoraBaseURL == null) {
@@ -273,32 +323,32 @@ public class IngestSIP extends HttpServlet
                     throw new IOException("Bad URL syntax (fedora.baseURL): " + m_fedoraBaseURL);
                 }
             }
-            m_fedoraUser = props.getProperty("fedora.user"); 
+            m_fedoraUser = props.getProperty("fedora.user");
             if (m_fedoraUser == null) {
                 throw new IOException("Required property (fedora.user) not specified in /diringest.properties");
             }
-            m_fedoraPass = props.getProperty("fedora.pass"); 
+            m_fedoraPass = props.getProperty("fedora.pass");
             if (m_fedoraPass == null) {
                 throw new IOException("Required property (fedora.pass) not specified in /diringest.properties");
             }
-
+            
             // Get the optional properties
             String pidNamespace = props.getProperty("pid.namespace");
-
+            
             // Initialize the converter
-            m_converter = new Converter( 
-                              new RemotePIDGenerator(pidNamespace, 
-                                                     m_fedoraBaseURL));
+            m_converter = new Converter(
+                    new RemotePIDGenerator(pidNamespace,
+                    m_fedoraBaseURL));
         } catch (Exception e) {
             e.printStackTrace();
             throw new ServletException("Unable to initialize", e);
         }
     }
-
+    
     //
     // From DatastreamStage interface
     //
-
+    
     public URL stageContent(File file) throws IOException {
         int c = file.hashCode();
         String id;
@@ -310,7 +360,7 @@ public class IngestSIP extends HttpServlet
         m_stagedContent.put(id, file);
         return getURL(id);
     }
-
+    
     public void unStageContent(URL location) throws IOException {
         String[] parts = location.toString().split("/");
         String id = parts[parts.length - 1];
@@ -321,16 +371,16 @@ public class IngestSIP extends HttpServlet
             f.delete();
         }
     }
-
+    
     private URL getURL(String id) {
         URL url = null;
         String urlString = m_requestURL + "?getStagedContent=" + id;
         try {
             url = new URL(urlString);
-        } catch (MalformedURLException e) {  
+        } catch (MalformedURLException e) {
             logger.warn("Programmer error.  Bad url: " + urlString);
         }
         return url;
     }
-
+    
 }

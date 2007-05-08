@@ -1,0 +1,6 @@
+Lynna Cekova, OhioLINK
+    Added option to ingest a SIP from the local
+    filesystem rather than by uploading it.
+    An alternate web form for doing this is
+    available when adding the ?local=yes
+    parameter to the ingestSIP url.
