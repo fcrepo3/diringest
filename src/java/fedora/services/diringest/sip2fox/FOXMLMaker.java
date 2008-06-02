@@ -135,7 +135,7 @@ public class FOXMLMaker implements fedora.common.Constants {
         //       add those here.  Currently the only data RELS-EXT will hold
         //       is that which is inferred by the rules.
         if (rels.size() > 0) {
-            startDatastream("RELS-EXT", "X", "A", "true", "text/xml", null,
+            startDatastream("RELS-EXT", "X", "A", "true", "application/rdf+xml", null,
                             "Relationship Metadata", out);
             out.println("      <xmlContent>");
             out.print(  "        <rdf:RDF xmlns:rdf=\"" + m_rules.getNamespaceURI("rdf") + "\"");

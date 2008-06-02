@@ -38,7 +38,7 @@ public class StagingIngester implements Ingester {
             logger.info("Parsed and staged " + result.getPID().toString());
             // Send the ingest request to Fedora
             m_fedora.getAPIM().ingest(parser.getFOXMLString().getBytes("UTF-8"),
-                                      "foxml1.0",
+                                      "info:fedora/fedora-system:FOXML-1.0",
                                       "Ingested using diringest service");
             logger.info("Ingested " + result.getPID().toString());
         } finally {
