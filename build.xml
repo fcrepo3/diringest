@@ -3,7 +3,7 @@
 
   <loadproperties srcFile="build.properties"/>
 
-  <property name="diringest.version" value="1.1"/>
+  <property name="diringest.version" value="1.2"/>
 
   <path id="all-jars.path">
     <pathelement location="${lib.base64}"/>
