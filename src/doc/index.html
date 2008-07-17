@@ -1,315 +1,238 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
-<head>
+  <head>
+    <title>Fedora Directory Ingest Service</title>
+    <link rel="stylesheet" type="text/css" href="docstyle.css" />
+  </head>
 
-  
-  
-  <title>Directory Ingest Service</title>
-  <link rel="stylesheet" type="text/css" href="docstyle.css" />
-</head>
-
-
-
-
-<body>
-
-  
-<div id="header">
-    <a href="http://www.fedora.info/download/2.2/userdocs/index.html" id="logo"></a>
-
+  <body>
     
-<div id="title">
-      
-<h1>Fedora Directory Ingest Service</h1>
-<h2>For Fedora Version 3.0</h2>
-
-      <br />
-
+    <div id="header">
+      <h1>Fedora Directory Ingest Service</h1>
+      <h2>Release 1.1</h2>
     </div>
 
-  </div>
-
-
-<div id="toc">
-    
-<h2>Table of Contents</h2>
-    
-
-        
-<ol>
-            <li><a href="#overview">Overview</a></li>
-            <li><a href="#installation">Installation</a>
-    <ol>
-                <li> <a href="#prerequisites">Prerequisites</a></li>
-                <li> <a href="#setup">Setup</a></li>
-    </ol>
-            </li>
-            <li><a href="#service">Using the Service</a></li>
-            <li><a href="#sip2fox">Using the SIP2FOX Utility</a></li>
-            <li><a href="#sip">Preparing a SIP</a></li>
-            <li><a href="#rules">Specifying Conversion Rules</a></li>
-</ol>
-
-
+    <div id="toc">
+      <h2>Table of Contents</h2>
+      <ol>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#installation">Installation</a>
+        <ul>
+          <li><a href="#installation">Installation</a>
+          <li> <a href="#setup">Setup</a></li>
+        </ul>
+        <li><a href="#service">Using the Service</a></li>
+        <li><a href="#sip2fox">Using the SIP2FOX Utility</a></li>
+        <li><a href="#sip">Preparing a SIP</a></li>
+        <li><a href="#rules">Specifying Conversion Rules</a></li>
+      </ol>
     </div>
 
-<p>&nbsp;</p>
-
-
-<div class="sect">
+    <div id=content>
   
-<h2><a name="overview">1. Overview</a></h2>
-
+      <h2><a name="overview">1. Overview</a></h2>
   
-<p>
-     This service is part of the <a href="http://www.fedora.info/download/2.2/userdocs/server/features/serviceframework.htm">Fedora Service Framework</a>.
-     It constructs Fedora objects from uploaded Submission Information
-     Packages ("SIPs") and ingests those objects into a Fedora repository.
-     It is exposed as a REST-style web service that accepts input via
-     HTTP POST and (if successful) returns an XML document with the
-     list of PIDs of the ingested objects.
-  </p>
-
-  
-<p>
-     The following diagram illustrates:
-  </p>
-
-
-  
-<div class="subsect">
-  
-<p><img src="overview.jpg" /></p>
-
-  </div>
-
-</div>
-
-
-<div class="sect">
-  
-<h2><a name="installation">2. Installation</a></h2>
-
-  
-<div class="subsect">
-    
-<h3><a name="prerequisites">A. Prerequisites</a></h3>
-
-
-    
-<p>
+      <p>
+      This service is part of the 
+      <a href="http://www.fedora.info/download/2.2/userdocs/server/features/serviceframework.htm">Fedora Service Framework</a>.
+      It constructs Fedora objects from uploaded Submission Information
+      Packages ("SIPs") and ingests those objects into a Fedora repository.
+      It is exposed as a REST-style web service that accepts input via
+      HTTP POST and (if successful) returns an XML document with the
+      list of PIDs of the ingested objects.
       </p>
-<ul>
- 
+  
+      <p>
+      The following diagram illustrates:
+      </p>
+
+      <p><img src="overview.jpg" /></p>
+
+      <h2><a name="installation">2. Installation</a></h2>
+    
+      <h3><a name="prerequisites">2.1 Prerequisites</a></h3>
+    
+      <ul id="content">
         <li> A running Fedora repository, version 3.0.</li>
-
         <li> A servlet container that supports the Servlet API v2.3+</li>
+      </ul>
 
-      
-</ul>
+      <h3><a name="setup">2.2 Setup</a></h3>
 
+      <p>
+      <em>Note: These instructions are written assuming you are using
+      Tomcat.  Web application deployment may differ for your servlet container.</em>
+      </p>
     
+      <p>
+      First, copy the diringest.war file to the "webapps" directory
+      and re-start Tomcat.  The war file should be deployed into
+      "webapps/diringest" by the Application Server. 
+      </p>
     
-<h3><a name="setup">B. Setup</a></h3>
+      <p>
+      Edit the "WEB-INF/classes/diringest.properties" file, changing the
+      values to what is appropriate for your installation.
+      </p>
 
-
-    
-<p>
-       <em>Note: These instructions are written assuming you are using
-       Tomcat.  Webapp deployment may differ for your servlet container.</em>
-    </p>
-
-    
-<p>
-        First, copy the diringest.war file to the "webapps" directory
-        and re-start Tomcat.  The war file should be expanded into
-        "webapps/diringest". 
-    </p>
-
-    
-<p>
-        Edit the "WEB-INF/classes/diringest.properties" file, changing the
-        values to what is appropriate for your installation.
-    </p>
-
-
-    
-<div class="code">
-<pre>#<br /># Required settings for remote Fedora repository.<br /># These are used for the pid generation and ingest functions.<br />#<br />fedora.baseURL = http://localhost:8080/fedora/<br />fedora.user    = fedoraAdmin<br />fedora.pass    = fedoraAdmin<br /><br />#<br /># Optional preferred namespace part for PIDs.<br /># Comment this out to use the default from the target Fedora repository<br />#<br />pid.namespace = demo<br /></pre>
-</div>
-
+<span class="plaintext">
+<code class="block">
+<pre>
+#
+# Required settings for remote Fedora repository.
+# These are used for the pid generation and ingest functions.
+#
+fedora.baseURL = http://localhost:8080/fedora/
+fedora.user    = fedoraAdmin
+fedora.pass    = fedoraAdmin
+#
+# Optional preferred namespace part for PIDs.
+# Comment this out to use the default from the target Fedora repository
+#
+pid.namespace = demo
+</pre>
+</code>
+</span>
      
-<p>
-       <em>Optional</em>: If desired, modify the default conversion rules file 
-       in this directory (crules.xml).  See <a href="#rules">the section 
-       below on specifying conversion rules</a>.
-     </p>
-
+      <p>
+      <em>Optional</em>: If desired, modify the default conversion rules file 
+      in this directory (crules.xml).  See <a href="#rules">the section 
+      below on specifying conversion rules</a>.
+      </p>
      
-<p>
-       <em>Optional</em>: If desired, modify the logging configuration file
-       in this directory (log4j.xml).
-     </p>
-
-
+      <p>
+      <em>Optional</em>: If desired, modify the logging configuration file
+      in this directory (log4j.xml).
+      </p>
      
-<p>
-       Finally, ensure that your Fedora server is running, and re-start Tomcat.
-     </p>
-
-  </div>
-
-</div>
-
-
-<div class="sect">
+      <p>
+      Finally, ensure that your Fedora server is running, and re-start Tomcat.
+      </p>
   
-<h2><a name="service">3. Using the Service</a></h2>
-
+      <h2><a name="service">3. Using the Service</a></h2>
   
-<p>
-    Once installed, the service will be exposed from your servlet
-    container at "diringest/ingestSIP".  For example:
-  </p>
-
-
+      <p>
+      Once installed, the service will be exposed from your servlet
+      container at "diringest/ingestSIP".  For example:
+      </p>
     
+<span class="plaintext">
 <div class="code">
 <pre>http://localhost/diringest/ingestSIP<br /></pre>
 </div>
-
+</span>
   
-<p>
-    Hitting the above URL with your browser will present a simple
-    test form where you can upload a SIP file, an optional rules file
-    (if you want to use non-default conversion rules), and hit "Submit".
-    A successful submission will result in an XML file that contains a
-    list of the PIDs of the objects that were ingested.
-  </p>
-
+      <p>
+      Navigating the URL above using your browser will present a simple
+      HTML form where you can upload a SIP file, an optional rules file
+      (if you want to use non-default conversion rules).  Select "Submit".
+      A successful submission will result in an XML file that contains a
+      list of the PIDs of the objects that were ingested.
+      </p>
   
-<p>
-    The service accepts, via HTTP POST, the following parameters:
-    </p>
-<ul>
+      <p>
+      The service accepts, via HTTP POST, the following parameters:
+      </p>
 
-      <li> <em>sip</em> - The SIP file.  See 
+      <ul>
+        <li> <em>sip</em> - The SIP file.  See 
            <em><a href="#sip">Preparing a SIP</a></em> for format details.</li>
-
-
-      <li> <em>rules (optional)</em> - A custom conversion rules file.  See
+        <li> <em>rules (optional)</em> - A custom conversion rules file.  See
            <em><a href="#rules">Specifying Conversion Rules</a></em> for format details.</li>
-
-    
-</ul>
-
+      </ul>
   
-  
-<p>
-    A successful response will return a 200 (OK) HTTP status code
-    and a simple XML file containing PIDs, such as the one below:
-  </p>
+      <p>
+      A successful response will return a 200 (OK) HTTP status code
+      and a simple XML file containing PIDs, such as the one below:
+      </p>
 
-
-    
+<span class="plaintext"    
 <div class="code">
-<pre>&lt;?xml version="1.0" encoding="UTF-8"?&gt;<br />&lt;pidList&gt;<br />  &lt;pid&gt;demo:42&lt;/pid&gt;<br />  &lt;pid&gt;demo:43&lt;/pid&gt;<br />  &lt;pid&gt;demo:44&lt;/pid&gt;<br /><br />  &lt;pid&gt;demo:45&lt;/pid&gt;<br />&lt;/pidList&gt;<br /></pre>
+<pre>
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;pidList&gt;
+  &lt;pid&gt;demo:42&lt;/pid&gt;
+  &lt;pid&gt;demo:43&lt;/pid&gt;
+  &lt;pid&gt;demo:44&lt;/pid&gt;
+  &lt;pid&gt;demo:45&lt;/pid&gt;
+&lt;/pidList&gt;
+</pre>
 </div>
-
-</div>
-
-
-<div class="sect">
+</span>
   
-<h2><a name="sip2fox">4. Using the SIP2FOX Utility</a></h2>
-
+      <h2><a name="sip2fox">4. Using the SIP2FOX Utility</a></h2>
   
-<p>
-    The "SIP2FOX" utility is useful for command-line testing of SIPs
-    and <a href="#rules">conversion rules</a>.  It's included in the distribution's "sip2fox" directory.
-    To invoke it, change to that directory and type:
-  </p>
+      <p>
+      The "SIP2FOX" utility is useful for command-line testing of SIPs
+      and <a href="#rules">conversion rules</a>.  It is included in the distribution's "sip2fox" directory.
+      To invoke it, change to that directory and type:
+      </p>
 
-
-    
+<span class="plaintext"
 <div class="code">
-<pre>sip2fox sipFile.zip outputDir [fedoraHost fedoraPort fedoraUser fedoraPass [pidNamespace]]<br /></pre>
+<pre>
+sip2fox sipFile.zip outputDir [fedoraHost fedoraPort fedoraUser fedoraPass [pidNamespace]]
+</pre>
 </div>
-
+</span>
   
-<p>
-    If you only specify a SIP file and an output directory, the program will
-    use a test PID generator for creating the objects.  If you specify
-    Fedora server login information, that repository's PID generator will
-    be used instead.  To use a pid namespace other than the default for
-    a repository, specify it as the last parameter.
-  </p>
-
+      <p>
+      If you only specify a SIP file and an output directory, the program will
+      use a test PID generator for creating the objects.  If you specify
+      Fedora Repository login information, that repository's PID generator will
+      be used instead.  To use a PID namespace other than the default for
+      a repository, specify it as the last parameter.
+      </p>
   
-<p>
-    The SIP2FOX utility uses whatever rules reside in the config/crules.xml
-    when it runs.
-  </p>
-
-</div>
-
-
-<div class="sect">
-
+      <p>
+      The SIP2FOX utility uses the rules that reside in the <i>config/crules.xml</i>
+      when it runs.
+      </p>
   
-<h2><a name="sip">5. Preparing a SIP</a></h2>
-
+      <h2><a name="sip">5. Preparing a SIP</a></h2>
   
-<p>
-    A SIP file is a ZIP file containing metadata and content for a
-    set of to-be-created Fedora objects.</p>
-<p>It consists of a single "Manifest.xml" file in METS format (actually
-a subset of METS), and 0 or more datastream files that are referenced
-from the METS file.
-  </p>
-
+      <p>
+      A SIP file is a ZIP file containing metadata and content for a
+      set of to-be-created Fedora objects.
+      </p>
+        
+      <p>
+      It consists of a single "Manifest.xml" file in METS format (actually
+      a subset of METS), and 0 or more datastream files that are referenced
+      from the METS file.
+      </p>
   
-<p>
-    Sample SIP files and a readme.txt 
-    file with descriptions of each are included in 
-    the sip2fox/samples directory in the diringest distribution.
-  </p>
+      <p>
+      Sample SIP files and a readme.txt 
+      file with descriptions of each are included in 
+      the sip2fox/samples directory in the diringest distribution.
+      </p>
 
-
+      <h2><a name="rules">6. Specifying Conversion Rules</a></h2>
   
-</div>
-
-
-<div class="sect">
+      <p>
+      A conversion rules file is used by the service (or sip2fox) in
+      deriving RELS-EXT relationships from the hierarchical structure (the structMap) 
+      in the SIP.&nbsp; &nbsp;
+      </p>
   
-<h2><a name="rules">6. Specifying Conversion Rules</a></h2>
-
+      <p>
+      The XML schema for conversion rules is included in the diringest distribution's
+      sip2fox/config/ directory.  There you can also find the default crules.xml file,
+      which illustrates the use of several templates.
+      </p>
   
-<p>
-    A conversion rules file is used by the service (or sip2fox) in
-    deriving RELS-EXT relationships from the hierarchical structure (the structMap) 
-    in the SIP.&nbsp; &nbsp;
-  </p>
-
-  
-<p>
-    The XML schema for conversion rules is included in the diringest distribution's
-    sip2fox/config/ directory.  There you can also find the default crules.xml file,
-    which illustrates the use of several templates.
-  </p>
-
-  
-  
-</div>
-
-
-  
-<div id="footer">
-    
-<div id="copyright">
-      Copyright &copy; 2006-2008 Fedora Project
     </div>
-  </div>
-
-</body>
+  
+    <div id="footer">
+    
+      <div id="copyright">
+        Copyright &copy; 2006-2007 Fedora Project, 2008 Fedora Commons, Inc.
+      </div>
+    
+    </div>
+  </body>
 </html>
